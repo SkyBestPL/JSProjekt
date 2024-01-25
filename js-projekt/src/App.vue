@@ -10,7 +10,7 @@ const editedTask = ref({ title: '', description: '', status: '' });
 
 const updateServerData = async () => {
   try {
-    await axios.post('http://localhost:3001', { taskLists: taskLists.value });
+    await axios.post('http://localhost:3001', { taskLists: taskLists.value, users: users.value });
   } catch (error) {
     console.error('Error updating data on the server', error);
   }
@@ -90,7 +90,6 @@ const logout = () => {
 };
 
 const login = () => {
-  // Logika logowania - przykładowa implementacja
   const user = findUserByEmail(loginData.value.email);
   if (user && user.password === loginData.value.password) {
     isLoggedIn.value = true;
@@ -101,14 +100,12 @@ const login = () => {
 };
 
 const register = () => {
-  // Logika rejestracji - przykładowa implementacja
   const existingUser = findUserByEmail(registerData.value.email);
   if (!existingUser) {
     const newUser = {
       email: registerData.value.email,
       password: registerData.value.password,
     };
-    // Dodaj nowego użytkownika do listy
     users.value.push(newUser);
     updateServerData();
     closeModal();
