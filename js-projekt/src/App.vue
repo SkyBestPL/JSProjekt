@@ -151,7 +151,10 @@ const addTask = (listIndex) => {
       status: newTask.value.status,
       assignedTo: newTask.value.assignedTo,
     });
-    newTask.value = { title: '', description: '', status: 'not-done', assignedTo: '' };
+    newTask.value.title = '';
+    newTask.value.description = '';
+    newTask.value.status = 'not-done';
+    newTask.value.assignedTo = '';
     updateServerData();
   }
 };
@@ -161,12 +164,20 @@ const removeTask = (listIndex, taskIndex) => {
   updateServerData();
 };
 
+const startEditingTask = (listIndex, taskIndex) => {
+  editingTaskIndex.value = taskIndex;
+  editedTask.value.title = taskLists.value[listIndex].tasks[taskIndex].title;
+  editedTask.value.description = taskLists.value[listIndex].tasks[taskIndex].description;
+  editedTask.value.status = taskLists.value[listIndex].tasks[taskIndex].status;
+};
+
 const saveEditedTask = (listIndex, taskIndex) => {
   taskLists.value[listIndex].tasks[taskIndex].title = editedTask.value.title;
   taskLists.value[listIndex].tasks[taskIndex].description = editedTask.value.description;
   taskLists.value[listIndex].tasks[taskIndex].status = editedTask.value.status;
   taskLists.value[listIndex].tasks[taskIndex].assignedTo = editedTask.value.assignedTo;
   updateServerData();
+  cancelEditingTask();
 };
 
 const cancelEditingTask = () => {
