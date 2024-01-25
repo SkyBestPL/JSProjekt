@@ -67,7 +67,7 @@ const cancelEditingTask = () => {
 const isModalVisible = ref(false);
 const isLoginVisible = ref(true);
 const loginData = ref({ email: '', password: '' });
-const registerData = ref({ email: '', password: '' });
+const registerData = ref({ firstName: '', lastName: '', email: '', password: '', nickname: '' });
 
 const showLoginModal = () => {
   isModalVisible.value = true;
@@ -103,8 +103,12 @@ const register = () => {
   const existingUser = findUserByEmail(registerData.value.email);
   if (!existingUser) {
     const newUser = {
+      id: getNextUserId(),
+      firstName: registerData.value.firstName,
+      lastName: registerData.value.lastName,
       email: registerData.value.email,
       password: registerData.value.password,
+      nickname: registerData.value.nickname,
     };
     users.value.push(newUser);
     updateServerData();
@@ -112,6 +116,14 @@ const register = () => {
   } else {
     console.log('Użytkownik już istnieje');
   }
+};
+
+const userIdCounter = ref(1);
+
+const getNextUserId = () => {
+  const id = userIdCounter.value;
+  userIdCounter.value += 1;
+  return id;
 };
 
 const findUserByEmail = (email) => {
@@ -161,8 +173,11 @@ onMounted(async () => {
           <h2>Rejestracja</h2>
           <form @submit.prevent="register">
             <!-- Formularz rejestracji -->
+            <label>Imię: <input v-model="registerData.firstName" type="text" /></label>
+            <label>Nazwisko: <input v-model="registerData.lastName" type="text" /></label>
             <label>Email: <input v-model="registerData.email" type="text" /></label>
             <label>Hasło: <input v-model="registerData.password" type="password" /></label>
+            <label>Pseudonim: <input v-model="registerData.nickname" type="text" /></label>
             <button type="submit">Zarejestruj się</button>
           </form>
         </div>
