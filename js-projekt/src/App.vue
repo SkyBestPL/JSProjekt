@@ -8,6 +8,10 @@ const taskLists = ref([]);
 const editingTaskIndex = ref(null);
 const editedTask = ref({ title: '', description: '', status: '' });
 
+const updateLocalStorage = () => {
+  localStorage.setItem('taskLists', JSON.stringify(taskLists.value));
+};
+
 const addTaskList = () => {
   if (newListName.value.trim() !== '') {
     taskLists.value.push({
@@ -15,11 +19,13 @@ const addTaskList = () => {
       tasks: [],
     });
     newListName.value = '';
+    updateLocalStorage();
   }
 };
 
 const removeTaskList = (index) => {
   taskLists.value.splice(index, 1);
+  updateLocalStorage();
 };
 
 const addTask = (listIndex) => {
@@ -30,31 +36,27 @@ const addTask = (listIndex) => {
       status: newTask.value.status,
     });
     newTask.value = { title: '', description: '', status: 'not-done' };
+    updateLocalStorage();
   }
 };
 
 const removeTask = (listIndex, taskIndex) => {
   taskLists.value[listIndex].tasks.splice(taskIndex, 1);
-};
-
-const startEditingTask = (listIndex, taskIndex) => {
-  editingTaskIndex.value = taskIndex;
-  editedTask.value.title = taskLists.value[listIndex].tasks[taskIndex].title;
-  editedTask.value.description = taskLists.value[listIndex].tasks[taskIndex].description;
-  editedTask.value.status = taskLists.value[listIndex].tasks[taskIndex].status;
+  updateLocalStorage();
 };
 
 const saveEditedTask = (listIndex, taskIndex) => {
   taskLists.value[listIndex].tasks[taskIndex].title = editedTask.value.title;
   taskLists.value[listIndex].tasks[taskIndex].description = editedTask.value.description;
   taskLists.value[listIndex].tasks[taskIndex].status = editedTask.value.status;
-  cancelEditingTask();
+  updateLocalStorage();
 };
 
 const cancelEditingTask = () => {
   editingTaskIndex.value = null;
   editedTask.value = { title: '', description: '', status: '' };
 };
+
 
 const isModalVisible = ref(false);
 const isLoginVisible = ref(true);
@@ -90,12 +92,18 @@ const register = () => {
 // Fetch data from db.json on component mount
 onMounted(async () => {
   try {
-    const response = await axios.get('../data/db.json');
-    taskLists.value = response.data.taskLists;
+    const localData = localStorage.getItem('taskLists');
+    if (localData) {
+      taskLists.value = JSON.parse(localData);
+    } else {
+      const response = await axios.get('../data/db.json');
+      taskLists.value = response.data.taskLists;
+    }
   } catch (error) {
-    console.error('Error fetching data from db.json', error);
+    console.error('Error fetching data', error);
   }
 });
+
 </script>
 
 <template>
