@@ -8,9 +8,14 @@ const taskLists = ref([]);
 const editingTaskIndex = ref(null);
 const editedTask = ref({ title: '', description: '', status: '' });
 
-const updateLocalStorage = () => {
-  localStorage.setItem('taskLists', JSON.stringify(taskLists.value));
+const updateServerData = async () => {
+  try {
+    await axios.post('http://localhost:3001', { taskLists: taskLists.value });
+  } catch (error) {
+    console.error('Error updating data on the server', error);
+  }
 };
+
 
 const addTaskList = () => {
   if (newListName.value.trim() !== '') {
@@ -19,13 +24,13 @@ const addTaskList = () => {
       tasks: [],
     });
     newListName.value = '';
-    updateLocalStorage();
+    updateServerData();
   }
 };
 
 const removeTaskList = (index) => {
   taskLists.value.splice(index, 1);
-  updateLocalStorage();
+  updateServerData();
 };
 
 const addTask = (listIndex) => {
@@ -36,26 +41,27 @@ const addTask = (listIndex) => {
       status: newTask.value.status,
     });
     newTask.value = { title: '', description: '', status: 'not-done' };
-    updateLocalStorage();
+    updateServerData();
   }
 };
 
 const removeTask = (listIndex, taskIndex) => {
   taskLists.value[listIndex].tasks.splice(taskIndex, 1);
-  updateLocalStorage();
+  updateServerData();
 };
 
 const saveEditedTask = (listIndex, taskIndex) => {
   taskLists.value[listIndex].tasks[taskIndex].title = editedTask.value.title;
   taskLists.value[listIndex].tasks[taskIndex].description = editedTask.value.description;
   taskLists.value[listIndex].tasks[taskIndex].status = editedTask.value.status;
-  updateLocalStorage();
+  updateServerData();
 };
 
 const cancelEditingTask = () => {
   editingTaskIndex.value = null;
   editedTask.value = { title: '', description: '', status: '' };
 };
+
 
 
 const isModalVisible = ref(false);
@@ -89,20 +95,17 @@ const register = () => {
   closeModal();
 };
 
-// Fetch data from db.json on component mount
 onMounted(async () => {
   try {
-    const localData = localStorage.getItem('taskLists');
-    if (localData) {
-      taskLists.value = JSON.parse(localData);
-    } else {
-      const response = await axios.get('../data/db.json');
-      taskLists.value = response.data.taskLists;
-    }
+    const response = await axios.get('http://localhost:3001');
+    taskLists.value = response.data.taskLists;
   } catch (error) {
     console.error('Error fetching data', error);
   }
 });
+
+
+
 
 </script>
 
