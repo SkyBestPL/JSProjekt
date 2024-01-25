@@ -53,6 +53,37 @@ const cancelEditingTask = () => {
   editingTaskIndex.value = null;
   editedTask.value = { title: '', description: '', status: '' };
 };
+
+const isModalVisible = ref(false);
+const isLoginVisible = ref(true);
+const loginData = ref({ email: '', password: '' });
+const registerData = ref({ email: '', password: '' });
+
+const showLoginModal = () => {
+  isModalVisible.value = true;
+  isLoginVisible.value = true;
+};
+
+const showRegisterModal = () => {
+  isModalVisible.value = true;
+  isLoginVisible.value = false;
+};
+
+const closeModal = () => {
+  isModalVisible.value = false;
+};
+
+const login = () => {
+  //logika logowania
+  console.log('Logowanie:', loginData.value);
+  closeModal();
+};
+
+const register = () => {
+  //logika rejestracji
+  console.log('Rejestracja:', registerData.value);
+  closeModal();
+};
 </script>
 
 <template>
@@ -60,6 +91,34 @@ const cancelEditingTask = () => {
   <div class="centered-text margin-bottom-small">
     <h1>Zarządzanie Zadaniami</h1>
   </div>
+
+  <button @click="showLoginModal">Zaloguj się</button>
+    <button @click="showRegisterModal">Zarejestruj się</button>
+
+    <!-- Modal -->
+    <div v-if="isModalVisible" class="modal">
+      <div class="modal-content">
+        <span class="close" @click="closeModal">&times;</span>
+        <div v-if="isLoginVisible">
+          <h2>Logowanie</h2>
+          <form @submit.prevent="login">
+            <!-- Formularz logowania -->
+            <label>Email: <input v-model="loginData.email" type="text" /></label>
+            <label>Hasło: <input v-model="loginData.password" type="password" /></label>
+            <button type="submit">Zaloguj się</button>
+          </form>
+        </div>
+        <div v-else>
+          <h2>Rejestracja</h2>
+          <form @submit.prevent="register">
+            <!-- Formularz rejestracji -->
+            <label>Email: <input v-model="registerData.email" type="text" /></label>
+            <label>Hasło: <input v-model="registerData.password" type="password" /></label>
+            <button type="submit">Zarejestruj się</button>
+          </form>
+        </div>
+      </div>
+    </div>
   
   <div class="kontener1 centered-text text-white">
     <label>Dodaj nową listę zadań: ‎ </label>

@@ -26,6 +26,24 @@ li {
   color: rgb(255, 255, 255);
 }
 
+button {
+  display: inline-block;
+  padding: 7px 13px;
+  font-size: 13px;
+  font-weight: bold;
+  color: #ffffff; /* Kolor tekstu */
+  background-color: #002e32; /* Kolor tła */
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease; /* Efekt przejścia */
+}
+
+/* Zmiana koloru po najechaniu */
+button:hover {
+  background-color: #004d60;
+}
+
 .task{
   background-color: #51b1ae;
   color: black;
@@ -49,4 +67,31 @@ li {
 
 .text-white{
   color: white;
+}
+
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+.modal-content {
+  background-color: #51b1ae;
+  color: black;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  padding: 20px;
+  border-radius: 10px;
+}
+
+.close {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  cursor: pointer;
 }
