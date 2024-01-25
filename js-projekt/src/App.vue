@@ -83,22 +83,51 @@ const closeModal = () => {
   isModalVisible.value = false;
 };
 
+const isLoggedIn = ref(false);
+
+const logout = () => {
+  isLoggedIn.value = false;
+};
+
 const login = () => {
-  //logika logowania
-  console.log('Logowanie:', loginData.value);
-  closeModal();
+  // Logika logowania - przykładowa implementacja
+  const user = findUserByEmail(loginData.value.email);
+  if (user && user.password === loginData.value.password) {
+    isLoggedIn.value = true;
+    closeModal();
+  } else {
+    console.log('Nieprawidłowe dane logowania');
+  }
 };
 
 const register = () => {
-  //logika rejestracji
-  console.log('Rejestracja:', registerData.value);
-  closeModal();
+  // Logika rejestracji - przykładowa implementacja
+  const existingUser = findUserByEmail(registerData.value.email);
+  if (!existingUser) {
+    const newUser = {
+      email: registerData.value.email,
+      password: registerData.value.password,
+    };
+    // Dodaj nowego użytkownika do listy
+    users.value.push(newUser);
+    updateServerData();
+    closeModal();
+  } else {
+    console.log('Użytkownik już istnieje');
+  }
 };
+
+const findUserByEmail = (email) => {
+  return users.value.find(user => user.email === email);
+};
+
+const users = ref([]);
 
 onMounted(async () => {
   try {
     const response = await axios.get('http://localhost:3001');
     taskLists.value = response.data.taskLists;
+    users.value = response.data.users || [];
   } catch (error) {
     console.error('Error fetching data', error);
   }
@@ -142,54 +171,57 @@ onMounted(async () => {
         </div>
       </div>
     </div>
-  
-  <div class="kontener1 centered-text text-white">
-    <label>Dodaj nową listę zadań: ‎ </label>
-    <input v-model="newListName" @keyup.enter="addTaskList" />
-    <button @click="addTaskList">Dodaj</button>
-  </div>
 
-    <div>
-      <h2 class="text-white">Twoje listy zadań:</h2>
-      <ul>
-        <li v-for="(list, index) in taskLists" :key="index">
-          {{ list.name }}
-          <button @click="removeTaskList(index)">Usuń</button>
-          <div class="margin-bottom-small">
-            <label>Dodaj nowe zadanie: </label>
-            <input v-model="newTask.title" placeholder="Tytuł" />
-            <textarea v-model="newTask.description" placeholder="Opis"></textarea>
-            <select v-model="newTask.status">
-              <option value="not-done">Niezrobione</option>
-              <option value="in-progress">W toku</option>
-              <option value="completed">Zakończone</option>
-            </select>
-            <button @click="addTask(index)">Dodaj</button>
-          </div>
-          <ul>
-            <li class="task" v-for="(task, taskIndex) in list.tasks" :key="taskIndex">
-              <span v-if="taskIndex !== editingTaskIndex">
-                <strong>{{ task.title }}</strong>
-                <p>{{ task.description }}</p>
-                <p>Status: {{ task.status }}</p>
-                <button @click="startEditingTask(index, taskIndex)">Edytuj</button>
-                <button @click="removeTask(index, taskIndex)">Usuń</button>
-              </span>
-              <span v-else>
-                <input v-model="editedTask.title" placeholder="Tytuł" />
-                <textarea v-model="editedTask.description" placeholder="Opis"></textarea>
-                <select v-model="editedTask.status">
-                  <option value="not-done">Niezrobione</option>
-                  <option value="in-progress">W toku</option>
-                  <option value="completed">Zakończone</option>
-                </select>
-                <button @click="saveEditedTask(index, taskIndex)">Zapisz</button>
-                <button @click="cancelEditingTask">Anuluj</button>
-              </span>
-            </li>
-          </ul>
-        </li>
-      </ul>
+    <button @click="logout" v-if="isLoggedIn">Wyloguj się</button>
+  <div v-if="isLoggedIn">
+    <div class="kontener1 centered-text text-white">
+      <label>Dodaj nową listę zadań: ‎ </label>
+      <input v-model="newListName" @keyup.enter="addTaskList" />
+      <button @click="addTaskList">Dodaj</button>
+    </div>
+
+      <div>
+        <h2 class="text-white">Twoje listy zadań:</h2>
+        <ul>
+          <li v-for="(list, index) in taskLists" :key="index">
+            {{ list.name }}
+            <button @click="removeTaskList(index)">Usuń</button>
+            <div class="margin-bottom-small">
+              <label>Dodaj nowe zadanie: </label>
+              <input v-model="newTask.title" placeholder="Tytuł" />
+              <textarea v-model="newTask.description" placeholder="Opis"></textarea>
+              <select v-model="newTask.status">
+                <option value="not-done">Niezrobione</option>
+                <option value="in-progress">W toku</option>
+                <option value="completed">Zakończone</option>
+              </select>
+              <button @click="addTask(index)">Dodaj</button>
+            </div>
+            <ul>
+              <li class="task" v-for="(task, taskIndex) in list.tasks" :key="taskIndex">
+                <span v-if="taskIndex !== editingTaskIndex">
+                  <strong>{{ task.title }}</strong>
+                  <p>{{ task.description }}</p>
+                  <p>Status: {{ task.status }}</p>
+                  <button @click="startEditingTask(index, taskIndex)">Edytuj</button>
+                  <button @click="removeTask(index, taskIndex)">Usuń</button>
+                </span>
+                <span v-else>
+                  <input v-model="editedTask.title" placeholder="Tytuł" />
+                  <textarea v-model="editedTask.description" placeholder="Opis"></textarea>
+                  <select v-model="editedTask.status">
+                    <option value="not-done">Niezrobione</option>
+                    <option value="in-progress">W toku</option>
+                    <option value="completed">Zakończone</option>
+                  </select>
+                  <button @click="saveEditedTask(index, taskIndex)">Zapisz</button>
+                  <button @click="cancelEditingTask">Anuluj</button>
+                </span>
+              </li>
+            </ul>
+          </li>
+        </ul>
+      </div>
     </div>
   </div>
 </template>
