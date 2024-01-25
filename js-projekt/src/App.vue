@@ -1,3 +1,152 @@
+<script setup>
+import { ref, onMounted } from 'vue';
+import axios from 'axios';
+
+const newListName = ref('');
+const newTask = ref({ title: '', description: '', status: 'not-done' });
+const taskLists = ref([]);
+const editingTaskIndex = ref(null);
+const editedTask = ref({ title: '', description: '', status: '' });
+
+const updateServerData = async () => {
+  try {
+    await axios.post('http://localhost:3001', { taskLists: taskLists.value, users: users.value });
+  } catch (error) {
+    console.error('Error updating data on the server', error);
+  }
+};
+
+
+const addTaskList = () => {
+  if (newListName.value.trim() !== '') {
+    taskLists.value.push({
+      name: newListName.value,
+      tasks: [],
+    });
+    newListName.value = '';
+    updateServerData();
+  }
+};
+
+const removeTaskList = (index) => {
+  taskLists.value.splice(index, 1);
+  updateServerData();
+};
+
+const addTask = (listIndex) => {
+  if (newTask.value.title.trim() !== '') {
+    taskLists.value[listIndex].tasks.push({
+      title: newTask.value.title,
+      description: newTask.value.description,
+      status: newTask.value.status,
+    });
+    newTask.value = { title: '', description: '', status: 'not-done' };
+    updateServerData();
+  }
+};
+
+const removeTask = (listIndex, taskIndex) => {
+  taskLists.value[listIndex].tasks.splice(taskIndex, 1);
+  updateServerData();
+};
+
+const saveEditedTask = (listIndex, taskIndex) => {
+  taskLists.value[listIndex].tasks[taskIndex].title = editedTask.value.title;
+  taskLists.value[listIndex].tasks[taskIndex].description = editedTask.value.description;
+  taskLists.value[listIndex].tasks[taskIndex].status = editedTask.value.status;
+  updateServerData();
+};
+
+const cancelEditingTask = () => {
+  editingTaskIndex.value = null;
+  editedTask.value = { title: '', description: '', status: '' };
+};
+
+
+
+const isModalVisible = ref(false);
+const isLoginVisible = ref(true);
+const loginData = ref({ email: '', password: '' });
+const registerData = ref({ firstName: '', lastName: '', email: '', password: '', nickname: '' });
+
+const showLoginModal = () => {
+  isModalVisible.value = true;
+  isLoginVisible.value = true;
+};
+
+const showRegisterModal = () => {
+  isModalVisible.value = true;
+  isLoginVisible.value = false;
+};
+
+const closeModal = () => {
+  isModalVisible.value = false;
+};
+
+const isLoggedIn = ref(false);
+
+const logout = () => {
+  isLoggedIn.value = false;
+};
+
+const login = () => {
+  const user = findUserByEmail(loginData.value.email);
+  if (user && user.password === loginData.value.password) {
+    isLoggedIn.value = true;
+    closeModal();
+  } else {
+    console.log('Nieprawidłowe dane logowania');
+  }
+};
+
+const register = () => {
+  const existingUser = findUserByEmail(registerData.value.email);
+  if (!existingUser) {
+    const newUser = {
+      id: getNextUserId(),
+      firstName: registerData.value.firstName,
+      lastName: registerData.value.lastName,
+      email: registerData.value.email,
+      password: registerData.value.password,
+      nickname: registerData.value.nickname,
+    };
+    users.value.push(newUser);
+    updateServerData();
+    closeModal();
+  } else {
+    console.log('Użytkownik już istnieje');
+  }
+};
+
+const userIdCounter = ref(1);
+
+const getNextUserId = () => {
+  const id = userIdCounter.value;
+  userIdCounter.value += 1;
+  return id;
+};
+
+const findUserByEmail = (email) => {
+  return users.value.find(user => user.email === email);
+};
+
+const users = ref([]);
+
+onMounted(async () => {
+  try {
+    const response = await axios.get('http://localhost:3001');
+    taskLists.value = response.data.taskLists;
+    users.value = response.data.users || [];
+  } catch (error) {
+    console.error('Error fetching data', error);
+  }
+});
+
+
+
+
+</script>
+
 <template>
   <div id="app">
     <div class="centered-text margin-bottom-small">
@@ -24,8 +173,11 @@
           <h2>Rejestracja</h2>
           <form @submit.prevent="register">
             <!-- Formularz rejestracji -->
+            <label>Imię: <input v-model="registerData.firstName" type="text" /></label>
+            <label>Nazwisko: <input v-model="registerData.lastName" type="text" /></label>
             <label>Email: <input v-model="registerData.email" type="text" /></label>
             <label>Hasło: <input v-model="registerData.password" type="password" /></label>
+            <label>Pseudonim: <input v-model="registerData.nickname" type="text" /></label>
             <button type="submit">Zarejestruj się</button>
           </form>
         </div>
