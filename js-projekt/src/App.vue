@@ -1,5 +1,7 @@
 <script setup>
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
+import axios from 'axios';
+
 const newListName = ref('');
 const newTask = ref({ title: '', description: '', status: 'not-done' });
 const taskLists = ref([]);
@@ -53,61 +55,71 @@ const cancelEditingTask = () => {
   editingTaskIndex.value = null;
   editedTask.value = { title: '', description: '', status: '' };
 };
+
+// Fetch data from db.json on component mount
+onMounted(async () => {
+  try {
+    const response = await axios.get('../data/db.json');
+    taskLists.value = response.data.taskLists;
+  } catch (error) {
+    console.error('Error fetching data from db.json', error);
+  }
+});
 </script>
 
 <template>
   <div id="app">
-  <div class="centered-text margin-bottom-small">
-    <h1>Zarządzanie Zadaniami</h1>
-  </div>
-  
-  <div class="kontener1 centered-text text-white">
-    <label>Dodaj nową listę zadań: ‎ </label>
-    <input v-model="newListName" @keyup.enter="addTaskList" />
-    <button @click="addTaskList">Dodaj</button>
-  </div>
+    <div class="centered-text margin-bottom-small">
+      <h1>Zarządzanie Zadaniami</h1>
+    </div>
 
-  <div>
-    <h2 class="text-white">Twoje listy zadań:</h2>
-    <ul>
-      <li v-for="(list, index) in taskLists" :key="index">
-        {{ list.name }}
-        <button @click="removeTaskList(index)">Usuń</button>
-        <div class="margin-bottom-small">
-          <label>Dodaj nowe zadanie: </label>
-          <input v-model="newTask.title" placeholder="Tytuł" />
-          <textarea v-model="newTask.description" placeholder="Opis"></textarea>
-          <select v-model="newTask.status">
-            <option value="not-done">Niezrobione</option>
-            <option value="in-progress">W toku</option>
-            <option value="completed">Zakończone</option>
-          </select>
-          <button @click="addTask(index)">Dodaj</button>
-        </div>
-        <ul>
-          <li class="task" v-for="(task, taskIndex) in list.tasks" :key="taskIndex">
-            <span v-if="taskIndex !== editingTaskIndex">
-              <strong>{{ task.title }}</strong>
-              <p>{{ task.description }}</p>
-              <p>Status: {{ task.status }}</p>
-              <button @click="startEditingTask(index, taskIndex)">Edytuj</button>
-              <button @click="removeTask(index, taskIndex)">Usuń</button>
-            </span>
-            <span v-else>
-              <input v-model="editedTask.title" placeholder="Tytuł" />
-              <textarea v-model="editedTask.description" placeholder="Opis"></textarea>
-              <select v-model="editedTask.status">
-                <option value="not-done">Niezrobione</option>
-                <option value="in-progress">W toku</option>
-                <option value="completed">Zakończone</option>
-              </select>
-              <button @click="saveEditedTask(index, taskIndex)">Zapisz</button>
-              <button @click="cancelEditingTask">Anuluj</button>
-            </span>
-          </li>
-        </ul>
-      </li>
-    </ul>
+    <div class="kontener1 centered-text text-white">
+      <label>Dodaj nową listę zadań: ‎ </label>
+      <input v-model="newListName" @keyup.enter="addTaskList" />
+      <button @click="addTaskList">Dodaj</button>
+    </div>
+
+    <div>
+      <h2 class="text-white">Twoje listy zadań:</h2>
+      <ul>
+        <li v-for="(list, index) in taskLists" :key="index">
+          {{ list.name }}
+          <button @click="removeTaskList(index)">Usuń</button>
+          <div class="margin-bottom-small">
+            <label>Dodaj nowe zadanie: </label>
+            <input v-model="newTask.title" placeholder="Tytuł" />
+            <textarea v-model="newTask.description" placeholder="Opis"></textarea>
+            <select v-model="newTask.status">
+              <option value="not-done">Niezrobione</option>
+              <option value="in-progress">W toku</option>
+              <option value="completed">Zakończone</option>
+            </select>
+            <button @click="addTask(index)">Dodaj</button>
+          </div>
+          <ul>
+            <li class="task" v-for="(task, taskIndex) in list.tasks" :key="taskIndex">
+              <span v-if="taskIndex !== editingTaskIndex">
+                <strong>{{ task.title }}</strong>
+                <p>{{ task.description }}</p>
+                <p>Status: {{ task.status }}</p>
+                <button @click="startEditingTask(index, taskIndex)">Edytuj</button>
+                <button @click="removeTask(index, taskIndex)">Usuń</button>
+              </span>
+              <span v-else>
+                <input v-model="editedTask.title" placeholder="Tytuł" />
+                <textarea v-model="editedTask.description" placeholder="Opis"></textarea>
+                <select v-model="editedTask.status">
+                  <option value="not-done">Niezrobione</option>
+                  <option value="in-progress">W toku</option>
+                  <option value="completed">Zakończone</option>
+                </select>
+                <button @click="saveEditedTask(index, taskIndex)">Zapisz</button>
+                <button @click="cancelEditingTask">Anuluj</button>
+              </span>
+            </li>
+          </ul>
+        </li>
+      </ul>
+    </div>
   </div>
-</div>
 </template>
