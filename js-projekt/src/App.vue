@@ -121,7 +121,7 @@ const users = ref([]);
 
 const updateServerData = async () => {
   try {
-    await axios.post('http://localhost:3001', { taskLists: taskLists.value, users: users.value });
+    await axios.post('http://localhost:3001', { taskLists: taskLists.value, users: users.value, userIdCounter: userIdCounter.value});
   } catch (error) {
     console.error('Error updating data on the server', error);
   }
@@ -232,10 +232,11 @@ const register = () => {
   }
 };
 
-const userIdCounter = ref(1);
+const userIdCounter = ref([]);
 const getNextUserId = () => {
   const id = userIdCounter.value;
   userIdCounter.value += 1;
+  updateServerData();
   return id;
 };
 
@@ -250,9 +251,11 @@ const findUserById = (id) => {
 onMounted(async () => {
   try {
     const response = await axios.get('http://localhost:3001');
+    userIdCounter.value = response.data.userIdCounter;
+    console.log('cosik:', userIdCounter.value);
     taskLists.value = response.data.taskLists;
     users.value = response.data.users || [];
-    console.log('Users:', users.value); 
+    console.log('Users:', users.value);
   } catch (error) {
     console.error('Error fetching data', error);
   }
