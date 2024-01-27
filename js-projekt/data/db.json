@@ -1,38 +1,30 @@
 {
   "taskLists": [
     {
-      "name": "Shopping List",
+      "id": 1,
+      "name": "Lista zadań 1",
       "tasks": [
         {
-          "title": "Buy groceries",
-          "description": "Milk, eggs, bread, etc.",
-          "status": "not-done"
-        },
-        {
-          "title": "Buy fruits",
-          "description": "Apples, bananas, oranges, etc.",
-          "status": "in-progress"
+          "id": 1,
+          "title": "Zadanie 1",
+          "description": "zadanie 1",
+          "status": "in-progress",
+          "assignedTo": 1
         }
       ]
-    },
-    {
-      "name": "Work Tasks",
-      "tasks": [
-        {
-          "title": "Finish project",
-          "description": "Complete the coding tasks",
-          "status": "in-progress"
-        },
-        {
-          "title": "Meeting with team",
-          "description": "Discuss project updates",
-          "status": "completed"
-        }
-      ]
-    },
-    {
-      "name": "dasda",
-      "tasks": []
     }
-  ]
+  ],
+  "users": [
+    {
+      "id": 1,
+      "firstName": "Jan",
+      "lastName": "Kowalski",
+      "email": "jan.kowalski@gmail.com",
+      "password": "haslo1234",
+      "nickname": "kowal"
+    }
+  ],
+  "userIdCounter": 2,
+  "taskIdCounter": 2,
+  "listIdCounter": 2
 }

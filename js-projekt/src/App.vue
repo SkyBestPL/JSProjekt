@@ -118,10 +118,13 @@ const loginData = ref({ email: '', password: '' });
 const registerData = ref({ firstName: '', lastName: '', email: '', password: '', nickname: '' });
 const isLoggedIn = ref(false);
 const users = ref([]);
+const userIdCounter = ref([]);
+const taskIdCounter = ref([]);
+const listIdCounter = ref([]);
 
 const updateServerData = async () => {
   try {
-    await axios.post('http://localhost:3001', { taskLists: taskLists.value, users: users.value, userIdCounter: userIdCounter.value});
+    await axios.post('http://localhost:3001', { taskLists: taskLists.value, users: users.value, userIdCounter: userIdCounter.value, taskIdCounter: taskIdCounter.value, listIdCounter: listIdCounter.value});
   } catch (error) {
     console.error('Error updating data on the server', error);
   }
@@ -129,10 +132,13 @@ const updateServerData = async () => {
 
 const addTaskList = () => {
   if (newListName.value.trim() !== '') {
+    const idList = listIdCounter.value;
     taskLists.value.push({
+      id: idList,
       name: newListName.value,
       tasks: [],
     });
+    listIdCounter.value += 1;
     newListName.value = '';
     updateServerData();
   }
@@ -145,12 +151,15 @@ const removeTaskList = (index) => {
 
 const addTask = (listIndex) => {
   if (newTask.value.title.trim() !== '') {
+    const idTask = taskIdCounter.value;
     taskLists.value[listIndex].tasks.push({
+      id: idTask,
       title: newTask.value.title,
       description: newTask.value.description,
       status: newTask.value.status,
       assignedTo: newTask.value.assignedTo,
     });
+    taskIdCounter.value += 1;
     newTask.value.title = '';
     newTask.value.description = '';
     newTask.value.status = 'not-done';
@@ -232,7 +241,6 @@ const register = () => {
   }
 };
 
-const userIdCounter = ref([]);
 const getNextUserId = () => {
   const id = userIdCounter.value;
   userIdCounter.value += 1;
@@ -252,7 +260,8 @@ onMounted(async () => {
   try {
     const response = await axios.get('http://localhost:3001');
     userIdCounter.value = response.data.userIdCounter;
-    console.log('cosik:', userIdCounter.value);
+    taskIdCounter.value = response.data.taskIdCounter;
+    listIdCounter.value = response.data.listIdCounter;
     taskLists.value = response.data.taskLists;
     users.value = response.data.users || [];
     console.log('Users:', users.value);
