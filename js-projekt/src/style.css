@@ -95,3 +95,13 @@ button:hover {
   right: 10px;
   cursor: pointer;
 }
+
+.auth-button {
+  margin-right: 10px;
+}
+
+.user-info {
+  margin-left: auto;
+  text-align: right;
+  color: #8dffe4;
+}
