@@ -44,6 +44,20 @@
       </div>
 
       <div>
+
+        <div>
+          <h2>Przypisz listę zadań do użytkownika:</h2>
+          <label>Wybierz użytkownika:</label>
+          <select v-model="selectedUser" @change="fetchUserTaskLists">
+            <option v-for="user in users" :key="user.id" :value="user.id">{{ user.firstName }} {{ user.lastName }}</option>
+          </select>
+          <label>Wybierz listę zadań:</label>
+          <select v-model="selectedTaskList">
+            <option v-for="list in taskLists" :key="list.id" :value="list.id">{{ list.name }}</option>
+          </select>
+          <button @click="assignTaskListToUser">Przypisz</button>
+        </div>
+
         <h2 class="text-white">Twoje listy zadań:</h2>
         <ul>
           <li v-for="(list, index) in taskLists" :key="index">
@@ -123,29 +137,53 @@ const loginData = ref({ email: '', password: '' });
 const registerData = ref({ firstName: '', lastName: '', email: '', password: '', nickname: '' });
 const isLoggedIn = ref(false);
 const users = ref([]);
-const taskIdCounter = ref([]);
-const userIdCounter = ref([]);
-const listIdCounter = ref([]);
+const taskIdCounter = ref(0); // Inicjalizacja licznika ID dla zadań
+
+const selectedUser = ref(null);
+const selectedTaskList = ref(null);
+
 
 // Metoda aktualizacji danych na serwerze
 const updateServerData = async () => {
   try {
-    await axios.post('http://localhost:3001', { taskLists: taskLists.value, users: users.value, userIdCounter: userIdCounter.value, taskIdCounter: taskIdCounter.value, listIdCounter: listIdCounter.value });
+    await axios.post('http://localhost:3001', { taskLists: taskLists.value, users: users.value });
   } catch (error) {
     console.error('Error updating data on the server', error);
   }
 };
 
+const assignTaskListToUser = async () => {
+  try {
+    const userId = selectedUser.value;
+    const listId = selectedTaskList.value;
+
+    const user = findUserById(userId);
+    if (!user) {
+      console.error('User not found');
+      return;
+    }
+
+    if (!user.taskListIds.includes(listId)) {
+      user.taskListIds.push(listId);
+    } else {
+      console.log('List already assigned to user');
+    }
+
+    await updateServerData();
+  } catch (error) {
+    console.error('Error assigning task list to user', error);
+  }
+};
+
+
+
 // Metoda dodawania nowej listy zadań
 const addTaskList = () => {
   if (newListName.value.trim() !== '') {
-    const idList = listIdCounter.value;
     taskLists.value.push({
-      id: idList,
       name: newListName.value,
       tasks: [],
     });
-    listIdCounter.value += 1;
     newListName.value = '';
     updateServerData();
   }
@@ -159,7 +197,7 @@ const removeTaskList = (index) => {
 
 const addTask = (listIndex) => {
   if (newTask.title.trim() !== '') {
-    const taskId = taskIdCounter.value;
+    const taskId = taskIdCounter.value++; // Generowanie nowego ID dla zadania
     const task = {
       id: taskId,
       title: newTask.title,
@@ -168,7 +206,6 @@ const addTask = (listIndex) => {
       assignedTo: newTask.assignedTo,
     };
     taskLists.value[listIndex].tasks.push(task);
-    taskIdCounter.value += 1;
     newTask.title = ''; // Resetowanie pól nowego zadania
     newTask.description = '';
     newTask.status = 'not-done';
@@ -278,9 +315,7 @@ const register = () => {
 
 // Metoda generująca kolejne unikalne ID użytkownika
 const getNextUserId = () => {
-  const id = userIdCounter.value;
-  userIdCounter.value += 1;
-  updateServerData();
+  const id = users.value.length + 1;
   return id;
 };
 
@@ -298,9 +333,6 @@ const findUserById = (id) => {
 onMounted(async () => {
   try {
     const response = await axios.get('http://localhost:3001');
-    userIdCounter.value = response.data.userIdCounter;
-    taskIdCounter.value = response.data.taskIdCounter;
-    listIdCounter.value = response.data.listIdCounter;
     taskLists.value = response.data.taskLists;
     users.value = response.data.users || [];
     console.log('Users:', users.value); 
