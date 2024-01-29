@@ -2,14 +2,14 @@
   "taskLists": [
     {
       "id": 1,
-      "name": "Lista zadań 1",
+      "name": "lista pierwsza",
       "tasks": [
         {
           "id": 1,
-          "title": "Zadanie 1",
-          "description": "zadanie 1",
-          "status": "in-progress",
-          "assignedTo": 1
+          "title": "zadanie pierwsze",
+          "description": "",
+          "status": "not-done",
+          "assignedTo": ""
         }
       ]
     }

@@ -123,12 +123,14 @@ const loginData = ref({ email: '', password: '' });
 const registerData = ref({ firstName: '', lastName: '', email: '', password: '', nickname: '' });
 const isLoggedIn = ref(false);
 const users = ref([]);
-const taskIdCounter = ref(0); // Inicjalizacja licznika ID dla zadań
+const taskIdCounter = ref([]);
+const userIdCounter = ref([]);
+const listIdCounter = ref([]);
 
 // Metoda aktualizacji danych na serwerze
 const updateServerData = async () => {
   try {
-    await axios.post('http://localhost:3001', { taskLists: taskLists.value, users: users.value });
+    await axios.post('http://localhost:3001', { taskLists: taskLists.value, users: users.value, userIdCounter: userIdCounter.value, taskIdCounter: taskIdCounter.value, listIdCounter: listIdCounter.value });
   } catch (error) {
     console.error('Error updating data on the server', error);
   }
@@ -137,10 +139,13 @@ const updateServerData = async () => {
 // Metoda dodawania nowej listy zadań
 const addTaskList = () => {
   if (newListName.value.trim() !== '') {
+    const idList = listIdCounter.value;
     taskLists.value.push({
+      id: idList,
       name: newListName.value,
       tasks: [],
     });
+    listIdCounter.value += 1;
     newListName.value = '';
     updateServerData();
   }
@@ -154,7 +159,7 @@ const removeTaskList = (index) => {
 
 const addTask = (listIndex) => {
   if (newTask.title.trim() !== '') {
-    const taskId = taskIdCounter.value++; // Generowanie nowego ID dla zadania
+    const taskId = taskIdCounter.value;
     const task = {
       id: taskId,
       title: newTask.title,
@@ -163,6 +168,7 @@ const addTask = (listIndex) => {
       assignedTo: newTask.assignedTo,
     };
     taskLists.value[listIndex].tasks.push(task);
+    taskIdCounter.value += 1;
     newTask.title = ''; // Resetowanie pól nowego zadania
     newTask.description = '';
     newTask.status = 'not-done';
@@ -272,7 +278,9 @@ const register = () => {
 
 // Metoda generująca kolejne unikalne ID użytkownika
 const getNextUserId = () => {
-  const id = users.value.length + 1;
+  const id = userIdCounter.value;
+  userIdCounter.value += 1;
+  updateServerData();
   return id;
 };
 
@@ -290,6 +298,9 @@ const findUserById = (id) => {
 onMounted(async () => {
   try {
     const response = await axios.get('http://localhost:3001');
+    userIdCounter.value = response.data.userIdCounter;
+    taskIdCounter.value = response.data.taskIdCounter;
+    listIdCounter.value = response.data.listIdCounter;
     taskLists.value = response.data.taskLists;
     users.value = response.data.users || [];
     console.log('Users:', users.value); 
