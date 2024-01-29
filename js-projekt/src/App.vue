@@ -58,33 +58,40 @@
           <li v-for="(list, index) in taskLists" :key="index">
             {{ list.name }}
             <button @click="removeTaskList(index)">Usuń</button>
+            <button style="margin-left: 10px;" @click="toggleAddingVisibility(list)">Dodaj zadanie</button>
             <div class="margin-bottom-small">
-              <label>Dodaj nowe zadanie: </label>
-              <input v-model="newTask.title" placeholder="Tytuł" />
-              <textarea v-model="newTask.description" placeholder="Opis"></textarea>
-              <select v-model="newTask.status">
-                <option value="not-done">Niezrobione</option>
-                <option value="in-progress">W toku</option>
-                <option value="completed">Zakończone</option>
-              </select>
-              <select v-model="newTask.assignedTo">
-                <option value="">Brak przypisania</option>
-                <option v-for="user in users" :value="user.id">{{ user.firstName }} {{ user.lastName }}</option>
-              </select>
+              <div v-if="list.isAddingVisible != false">
+                <label>Dodaj nowe zadanie: </label>
+                <input v-model="newTask.title" placeholder="Tytuł" />
+                <textarea v-model="newTask.description" placeholder="Opis"></textarea>
+                <select v-model="newTask.status">
+                  <option value="not-done">Niezrobione</option>
+                  <option value="in-progress">W toku</option>
+                  <option value="completed">Zakończone</option>
+                </select>
+                <select v-model="newTask.assignedTo">
+                  <option value="">Brak przypisania</option>
+                  <option v-for="user in users" :value="user.id">{{ user.firstName }} {{ user.lastName }}</option>
+                </select>
 
-              <button @click="addTask(index)">Dodaj</button>
+                <button @click="addTask(index); toggleAddingVisibility(list)">Dodaj</button>
+              </div>
+              
             </div>
             <ul>
               <li class="task" v-for="task in list.tasks" :key="task.id">
-                <span v-if="task.id !== editingTaskIndex">
-                  <strong>{{ task.title }}</strong>
-                  <p>{{ task.description }}</p>
+                <span v-if="task.id !== editingTaskIndex && task.isDetailsVisible != false">
+                  <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <strong>{{ task.title }}</strong>
+                    <button style="margin-left: 10px;" @click="toggleDetailsVisibility(task)">Pokaż/Schowaj szczegóły</button>
+                  </div>
+                  <p v-if="task.isDetailsVisible">{{ task.description }}</p>
                   <p>Status: {{ task.status }}</p>
                   <p v-if="task.assignedTo">Przypisane do: {{ findUserById(task.assignedTo).firstName }} {{ findUserById(task.assignedTo).lastName }}</p>
                   <button @click="startEditingTask(index, task.id)">Edytuj</button>
-                  <button @click="removeTask(index, task.id)">Usuń</button>
+                  <button style="margin-left: 10px" @click="removeTask(index, task.id)">Usuń</button>
                 </span>
-                <span v-else>
+                <span v-else-if="task.id == editingTaskIndex && task.isDetailsVisible != false">
                   <input v-model="editedTask.title" placeholder="Tytuł" />
                   <textarea v-model="editedTask.description" placeholder="Opis"></textarea>
                   <select v-model="editedTask.status">
@@ -98,6 +105,12 @@
                   </select>
                   <button @click="saveEditedTask(index, task.id)">Zapisz</button>
                   <button @click="cancelEditingTask">Anuluj</button>
+                </span>
+                <span v-else>
+                  <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <strong>{{ task.title }}</strong>
+                    <button style="margin-left: 10px;" @click="toggleDetailsVisibility(task)">Pokaż/Schowaj szczegóły</button>
+                  </div>
                 </span>
               </li>
             </ul>
@@ -119,7 +132,9 @@ let newTask = {
   title: '',
   description: '',
   status: 'not-done',
-  assignedTo: ''
+  assignedTo: '',
+  isDetailsVisible: false,
+  isAddingVisible: false
 };
 
 
@@ -176,10 +191,12 @@ const addTask = (listIndex) => {
       description: newTask.description,
       status: newTask.status,
       assignedTo: newTask.assignedTo,
+      isDetailsVisible: false,
+      isAddingVisible: false
     };
     taskLists.value[listIndex].tasks.push(task);
     taskIdCounter.value += 1;
-    newTask.title = ''; // Resetowanie pól nowego zadania
+    newTask.title = '';
     newTask.description = '';
     newTask.status = 'not-done';
     newTask.assignedTo = '';
@@ -307,6 +324,16 @@ const findUserById = (id) => {
 
 const getCurrentUser = () => {
   return findUserById(loggedInUserId.value);
+};
+
+const toggleDetailsVisibility = (task) => {
+  task.isDetailsVisible = !task.isDetailsVisible;
+  updateServerData();
+};
+
+const toggleAddingVisibility = (list) => {
+  list.isAddingVisible = !list.isAddingVisible;
+  updateServerData();
 };
 
 // Metoda inicjalizująca dane po załadowaniu komponentu

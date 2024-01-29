@@ -6,12 +6,15 @@
       "tasks": [
         {
           "id": 1,
-          "title": "zadanie pierwsze",
-          "description": "",
-          "status": "not-done",
-          "assignedTo": ""
+          "title": "Zadanie pierwsze",
+          "description": "brak opisu",
+          "status": "in-progress",
+          "assignedTo": 1,
+          "isDetailsVisible": false
         }
-      ]
+      ],
+      "isDetailsVisible": false,
+      "isAddingVisible": false
     }
   ],
   "users": [
