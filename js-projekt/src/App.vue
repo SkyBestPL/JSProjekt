@@ -173,7 +173,7 @@ const loggedInUserId = ref([]);
 // Metoda aktualizacji danych na serwerze
 const updateServerData = async () => {
   try {
-    await axios.post('http://localhost:3001', { taskLists: taskLists.value, users: users.value });
+    await axios.post('http://localhost:3001', { taskLists: taskLists.value, users: users.value, userIdCounter: userIdCounter.value, taskIdCounter: taskIdCounter.value, listIdCounter: listIdCounter.value });
   } catch (error) {
     console.error('Error updating data on the server', error);
   }
@@ -224,7 +224,7 @@ const removeTaskList = (index) => {
 
 const addTask = (listIndex) => {
   if (newTask.title.trim() !== '') {
-    const taskId = taskIdCounter.value++; // Generowanie nowego ID dla zadania
+    const taskId = taskIdCounter.value;
     const task = {
       id: taskId,
       title: newTask.title,
@@ -347,6 +347,8 @@ const register = () => {
 // Metoda generująca kolejne unikalne ID użytkownika
 const getNextUserId = () => {
   const id = users.value.length + 1;
+  userIdCounter.value += 1;
+  updateServerData();
   return id;
 };
 
@@ -380,6 +382,9 @@ onMounted(async () => {
     const response = await axios.get('http://localhost:3001');
     taskLists.value = response.data.taskLists;
     users.value = response.data.users || [];
+    userIdCounter.value = response.data.userIdCounter;
+    taskIdCounter.value = response.data.taskIdCounter;
+    listIdCounter.value = response.data.listIdCounter;
     console.log('Users:', users.value); 
   } catch (error) {
     console.error('Error fetching data', error);
