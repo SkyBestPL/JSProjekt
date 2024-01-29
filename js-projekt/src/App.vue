@@ -4,8 +4,18 @@
       <h1>Zarządzanie Zadaniami</h1>
     </div>
 
-    <button @click="showLoginModal" v-if="!isLoggedIn">Zaloguj się</button>
-    <button @click="showRegisterModal" v-if="!isLoggedIn">Zarejestruj się</button>
+    <div style="display: flex">
+      <div>
+        <button style="margin-top:10px" @click="logout" v-if="isLoggedIn">Wyloguj się</button>
+      </div>
+
+      <div class="user-info" v-if="isLoggedIn">
+        <p>Zalogowano jako: <b>{{ getCurrentUser().firstName }} {{ getCurrentUser().lastName }}</b> ({{ getCurrentUser().nickname }})</p>
+      </div>
+    </div>
+
+    <button class="auth-button" @click="showLoginModal" v-if="!isLoggedIn">Zaloguj się</button>
+    <button class="auth-button" @click="showRegisterModal" v-if="!isLoggedIn">Zarejestruj się</button>
 
     <!-- Modal -->
     <div v-if="isModalVisible" class="modal">
@@ -35,7 +45,6 @@
       </div>
     </div>
 
-    <button @click="logout" v-if="isLoggedIn">Wyloguj się</button>
     <div v-if="isLoggedIn">
       <div class="kontener1 centered-text text-white">
         <label>Dodaj nową listę zadań: ‎ </label>
@@ -126,6 +135,7 @@ const users = ref([]);
 const taskIdCounter = ref([]);
 const userIdCounter = ref([]);
 const listIdCounter = ref([]);
+const loggedInUserId = ref([]);
 
 // Metoda aktualizacji danych na serwerze
 const updateServerData = async () => {
@@ -250,6 +260,7 @@ const login = () => {
   const user = findUserByEmail(loginData.value.email);
   if (user && user.password === loginData.value.password) {
     isLoggedIn.value = true;
+    loggedInUserId.value = user.id;
     closeModal();
   } else {
     console.log('Nieprawidłowe dane logowania');
@@ -292,6 +303,10 @@ const findUserByEmail = (email) => {
 // Metoda znajdująca użytkownika po ID
 const findUserById = (id) => {
   return users.value.find(user => user.id === id);
+};
+
+const getCurrentUser = () => {
+  return findUserById(loggedInUserId.value);
 };
 
 // Metoda inicjalizująca dane po załadowaniu komponentu
