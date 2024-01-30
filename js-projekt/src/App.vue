@@ -53,20 +53,6 @@
       </div>
 
       <div>
-
-        <div>
-          <h2>Przypisz listę zadań do użytkownika:</h2>
-          <label>Wybierz użytkownika:</label>
-          <select v-model="selectedUser" @change="fetchUserTaskLists">
-            <option v-for="user in users" :key="user.id" :value="user.id">{{ user.firstName }} {{ user.lastName }}</option>
-          </select>
-          <label>Wybierz listę zadań:</label>
-          <select v-model="selectedTaskList">
-            <option v-for="list in taskLists" :key="list.id" :value="list.id">{{ list.name }}</option>
-          </select>
-          <button @click="assignTaskListToUser">Przypisz</button>
-        </div>
-
         <h2 class="text-white">Twoje listy zadań:</h2>
         <ul>
           <li v-for="(list, index) in taskLists" :key="index">
@@ -161,14 +147,10 @@ const loginData = ref({ email: '', password: '' });
 const registerData = ref({ firstName: '', lastName: '', email: '', password: '', nickname: '' });
 const isLoggedIn = ref(false);
 const users = ref([]);
-const taskIdCounter = ref(0); // Inicjalizacja licznika ID dla zadań
-
+const taskIdCounter = ref([]);
 const userIdCounter = ref([]);
 const listIdCounter = ref([]);
-const selectedUser = ref(null);
-const selectedTaskList = ref(null);
 const loggedInUserId = ref([]);
-
 
 // Metoda aktualizacji danych na serwerze
 const updateServerData = async () => {
@@ -179,38 +161,16 @@ const updateServerData = async () => {
   }
 };
 
-const assignTaskListToUser = async () => {
-  try {
-    const userId = selectedUser.value;
-    const listId = selectedTaskList.value;
-
-    const user = findUserById(userId);
-    if (!user) {
-      console.error('User not found');
-      return;
-    }
-
-    if (!user.taskListIds.includes(listId)) {
-      user.taskListIds.push(listId);
-    } else {
-      console.log('List already assigned to user');
-    }
-
-    await updateServerData();
-  } catch (error) {
-    console.error('Error assigning task list to user', error);
-  }
-};
-
-
-
 // Metoda dodawania nowej listy zadań
 const addTaskList = () => {
   if (newListName.value.trim() !== '') {
+    const idList = listIdCounter.value;
     taskLists.value.push({
+      id: idList,
       name: newListName.value,
       tasks: [],
     });
+    listIdCounter.value += 1;
     newListName.value = '';
     updateServerData();
   }
@@ -380,11 +340,11 @@ const toggleAddingVisibility = (list) => {
 onMounted(async () => {
   try {
     const response = await axios.get('http://localhost:3001');
-    taskLists.value = response.data.taskLists;
-    users.value = response.data.users || [];
     userIdCounter.value = response.data.userIdCounter;
     taskIdCounter.value = response.data.taskIdCounter;
     listIdCounter.value = response.data.listIdCounter;
+    taskLists.value = response.data.taskLists;
+    users.value = response.data.users || [];
     console.log('Users:', users.value); 
   } catch (error) {
     console.error('Error fetching data', error);
