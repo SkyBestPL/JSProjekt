@@ -24,7 +24,8 @@
       "lastName": "Kowalski",
       "email": "jan.kowalski@gmail.com",
       "password": "haslo1234",
-      "nickname": "kowal"
+      "nickname": "kowal",
+      "taskListIds": []
     }
   ],
   "userIdCounter": 2,

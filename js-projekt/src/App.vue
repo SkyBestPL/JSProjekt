@@ -53,20 +53,6 @@
       </div>
 
       <div>
-
-        <div>
-          <h2>Przypisz listę zadań do użytkownika:</h2>
-          <label>Wybierz użytkownika:</label>
-          <select v-model="selectedUser" @change="fetchUserTaskLists">
-            <option v-for="user in users" :key="user.id" :value="user.id">{{ user.firstName }} {{ user.lastName }}</option>
-          </select>
-          <label>Wybierz listę zadań:</label>
-          <select v-model="selectedTaskList">
-            <option v-for="list in taskLists" :key="list.id" :value="list.id">{{ list.name }}</option>
-          </select>
-          <button @click="assignTaskListToUser">Przypisz</button>
-        </div>
-
         <h2 class="text-white">Twoje listy zadań:</h2>
         <ul>
           <li v-for="(list, index) in taskLists" :key="index">
