@@ -346,7 +346,7 @@ const register = () => {
 
 // Metoda generująca kolejne unikalne ID użytkownika
 const getNextUserId = () => {
-  const id = users.value.length + 1;
+  const id = userIdCounter.value;
   userIdCounter.value += 1;
   updateServerData();
   return id;
