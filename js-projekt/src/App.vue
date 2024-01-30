@@ -53,26 +53,18 @@
       </div>
 
       <div>
-
-        <div>
-          <h2>Przypisz listę zadań do użytkownika:</h2>
-          <label>Wybierz użytkownika:</label>
-          <select v-model="selectedUser" @change="fetchUserTaskLists">
-            <option v-for="user in users" :key="user.id" :value="user.id">{{ user.firstName }} {{ user.lastName }}</option>
-          </select>
-          <label>Wybierz listę zadań:</label>
-          <select v-model="selectedTaskList">
-            <option v-for="list in taskLists" :key="list.id" :value="list.id">{{ list.name }}</option>
-          </select>
-          <button @click="assignTaskListToUser">Przypisz</button>
-        </div>
-
         <h2 class="text-white">Twoje listy zadań:</h2>
         <ul>
           <li v-for="(list, index) in taskLists" :key="index">
             {{ list.name }}
             <button @click="removeTaskList(index)">Usuń</button>
             <button style="margin-left: 10px;" @click="toggleAddingVisibility(list)">Dodaj zadanie</button>
+            
+            <select v-model="selectedUserForAssignment">
+              <option v-for="user in users" :value="user.id">{{ user.firstName }} {{ user.lastName }}</option>
+            </select>
+            <button @click="assignTaskListToUser(list.id, selectedUserForAssignment)">Przypisz listę</button>
+            
             <div class="margin-bottom-small">
               <div v-if="list.isAddingVisible != false">
                 <label>Dodaj nowe zadanie: </label>
@@ -165,6 +157,8 @@ const taskIdCounter = ref([]);
 const userIdCounter = ref([]);
 const listIdCounter = ref([]);
 const loggedInUserId = ref([]);
+const selectedUserForAssignment = ref('');
+
 
 // Metoda aktualizacji danych na serwerze
 const updateServerData = async () => {
@@ -309,6 +303,7 @@ const register = () => {
       email: registerData.value.email,
       password: registerData.value.password,
       nickname: registerData.value.nickname,
+      taskListIds: []
     };
     users.value.push(newUser);
     updateServerData();
@@ -348,6 +343,26 @@ const toggleDetailsVisibility = (task) => {
 const toggleAddingVisibility = (list) => {
   list.isAddingVisible = !list.isAddingVisible;
   updateServerData();
+};
+
+const assignTaskListToUser = async (listId, userId) => {
+  try {
+    const user = findUserById(userId);
+    if (!user) {
+      console.error('User not found');
+      return;
+    }
+
+    if (!user.taskListIds.includes(listId)) {
+      user.taskListIds.push(listId);
+    } else {
+      console.log('List already assigned to user');
+    }
+
+    await updateServerData();
+  } catch (error) {
+    console.error('Error assigning task list to user', error);
+  }
 };
 
 // Metoda inicjalizująca dane po załadowaniu komponentu
