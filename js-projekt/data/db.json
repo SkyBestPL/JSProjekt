@@ -11,9 +11,34 @@
           "status": "in-progress",
           "assignedTo": 1,
           "isDetailsVisible": false
+        },
+        {
+          "id": 2,
+          "title": "sadasd",
+          "description": "asda",
+          "status": "not-done",
+          "assignedTo": "",
+          "isDetailsVisible": false,
+          "isAddingVisible": false
         }
       ],
       "isDetailsVisible": false,
+      "isAddingVisible": false
+    },
+    {
+      "id": 2,
+      "name": "asdas",
+      "tasks": [
+        {
+          "id": 3,
+          "title": "sadasd",
+          "description": "asdas",
+          "status": "not-done",
+          "assignedTo": "",
+          "isDetailsVisible": false,
+          "isAddingVisible": false
+        }
+      ],
       "isAddingVisible": false
     }
   ],
@@ -26,9 +51,40 @@
       "password": "haslo1234",
       "nickname": "kowal",
       "taskListIds": []
+    },
+    {
+      "id": 2,
+      "firstName": "x",
+      "lastName": "x",
+      "email": "x@x.pl",
+      "password": "x",
+      "nickname": "",
+      "taskListIds": [
+        1
+      ]
+    },
+    {
+      "id": 3,
+      "firstName": "admin",
+      "lastName": "admin",
+      "email": "admin@admin.pl",
+      "password": "admin",
+      "nickname": "admin",
+      "taskListIds": [],
+      "ifAdmin": 1
+    },
+    {
+      "id": 4,
+      "firstName": "m",
+      "lastName": "m",
+      "email": "m@m.pl",
+      "password": "m",
+      "nickname": "m",
+      "taskListIds": [],
+      "ifAdmin": 1
     }
   ],
-  "userIdCounter": 2,
-  "taskIdCounter": 2,
-  "listIdCounter": 2
+  "userIdCounter": 5,
+  "taskIdCounter": 4,
+  "listIdCounter": 3
 }

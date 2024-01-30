@@ -60,10 +60,12 @@
             <button @click="removeTaskList(index)">Usuń</button>
             <button style="margin-left: 10px;" @click="toggleAddingVisibility(list)">Dodaj zadanie</button>
             
-            <select v-model="selectedUserForAssignment">
+            <span v-if="getCurrentUser().ifAdmin == 1">
+              <select v-model="selectedUserForAssignment">
               <option v-for="user in users" :value="user.id">{{ user.firstName }} {{ user.lastName }}</option>
             </select>
             <button @click="assignTaskListToUser(list.id, selectedUserForAssignment)">Przypisz listę</button>
+            </span>
             
             <div class="margin-bottom-small">
               <div v-if="list.isAddingVisible != false">
@@ -303,7 +305,8 @@ const register = () => {
       email: registerData.value.email,
       password: registerData.value.password,
       nickname: registerData.value.nickname,
-      taskListIds: []
+      taskListIds: [],
+      ifAdmin: 0
     };
     users.value.push(newUser);
     updateServerData();
