@@ -65,6 +65,9 @@
               <option v-for="user in users" :value="user.id">{{ user.firstName }} {{ user.lastName }}</option>
             </select>
             <button @click="assignTaskListToUser(list.id, selectedUserForAssignment)">Przypisz listę</button>
+            <!-- <span v-if="list.idModer != null">
+              <p>Zarządza:  {{ findUserById(list.idModer).firstName }}</p>
+            </span> -->
             </span>
             
             <div class="margin-bottom-small">
@@ -178,6 +181,7 @@ const addTaskList = () => {
     taskLists.value.push({
       id: idList,
       name: newListName.value,
+      idModer: 0,
       tasks: [],
     });
     listIdCounter.value += 1;
@@ -334,6 +338,11 @@ const findUserById = (id) => {
   return users.value.find(user => user.id === id);
 };
 
+// Metoda znajdująca listę po ID
+const findListById = (id) => {
+  return taskLists.value.find(list => list.id === id);
+};
+
 const getCurrentUser = () => {
   return findUserById(loggedInUserId.value);
 };
@@ -351,6 +360,11 @@ const toggleAddingVisibility = (list) => {
 const assignTaskListToUser = async (listId, userId) => {
   try {
     const user = findUserById(userId);
+
+    const Lista = findListById(listId);
+
+    Lista.idModer = userId;
+
     if (!user) {
       console.error('User not found');
       return;
