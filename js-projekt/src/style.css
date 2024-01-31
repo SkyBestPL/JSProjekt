@@ -1,20 +1,23 @@
-
 body {
   font-family: 'Arial', sans-serif;
   background-color: #004c49;
+  margin: 0;
+  padding: 0;
 }
 
 #app {
   max-width: 800px;
   margin: 0 auto;
+  padding: 20px;
+  box-sizing: border-box;
 }
 
 h1 {
   color: #8dffe4;
+  text-align: center;
 }
 
 ul {
-  list-style-type: none;
   padding: 0;
 }
 
@@ -23,7 +26,7 @@ li {
   padding: 10px;
   border-radius: 10px;
   background-color: #117976;
-  color: rgb(255, 255, 255);
+  color: #ffffff;
 }
 
 button {
@@ -39,19 +42,49 @@ button {
   transition: background-color 0.3s ease;
 }
 
-/* Zmiana koloru po najechaniu */
+button, select {
+  margin-right: 10px;
+  margin-bottom: 10px;
+}
+
+select {
+  padding: 8px;
+  font-size: 14px;
+  border: 1px solid #002e32;
+  border-radius: 5px;
+  background-color: #004c49;
+  color: #ffffff;
+  transition: border-color 0.3s ease, background-color 0.3s ease, color 0.3s ease;
+}
+
+select:hover {
+  border-color: #008080;
+}
+
+select:focus {
+  outline: none;
+  border-color: #008080;
+  background-color: #002e32;
+  color: #ffffff;
+}
+
+
 button:hover {
   background-color: #004d60;
 }
 
-.task{
+.task {
   background-color: #51b1ae;
   color: black;
+  padding: 10px;
+  border-radius: 5px;
 }
 
-.kontener1{
+.kontener1 {
   background-color: #117976;
   border-radius: 10px;
+  padding: 10px;
+  margin-bottom: 20px;
 }
 
 .centered-text {
@@ -61,11 +94,7 @@ button:hover {
   height: 5vh;
 }
 
-.margin-bottom-small{
-  margin-bottom: 10px;
-}
-
-.text-white{
+.text-white {
   color: white;
 }
 
@@ -76,17 +105,17 @@ button:hover {
   width: 100%;
   height: 100%;
   background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .modal-content {
   background-color: #51b1ae;
   color: black;
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
   padding: 20px;
   border-radius: 10px;
+  position: relative;
 }
 
 .close {
@@ -94,6 +123,7 @@ button:hover {
   top: 10px;
   right: 10px;
   cursor: pointer;
+  color: #ffffff;
 }
 
 .auth-button {
@@ -107,11 +137,28 @@ button:hover {
 }
 
 .owner {
-  color: #8dffe4; 
-  background-color:#002e32; 
-  padding-left: 5px; 
-  padding-right: 5px;
-  padding-bottom: 3px;
-  padding-top: 3px;
+  color: #8dffe4;
+  background-color: #002e32;
+  padding: 3px 5px;
   border-radius: 5px;
+}
+
+.button-container {
+  margin-bottom: 10px;
+}
+
+.button-container button {
+  margin-right: 10px;
+}
+
+.button-container select {
+  margin-right: 10px;
+}
+
+.custom-input {
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 14px;
+  width: 200px;
 }

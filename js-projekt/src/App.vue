@@ -4,53 +4,47 @@
       <h1>Zarządzanie Zadaniami</h1>
     </div>
 
-    <div style="display: flex">
-      <div>
-        <button style="margin-top:10px" @click="logout" v-if="isLoggedIn">Wyloguj się</button>
-      </div>
-
-      <div class="user-info" v-if="isLoggedIn">
-        <p>Zalogowano jako: <b>{{ getCurrentUser().firstName }} {{ getCurrentUser().lastName }}</b> ({{ getCurrentUser().nickname }})</p>
+    <div class="button-container">
+      <button @click="showLoginModal" v-if="!isLoggedIn">Zaloguj się</button>
+      <button @click="showRegisterModal" v-if="!isLoggedIn">Zarejestruj się</button>
+      <button style="margin-top:10px " @click="logout" v-if="isLoggedIn">Wyloguj się</button>
+      <div v-if="isLoggedIn" class="user-info">
+        <p style="text-align: center;" >Zalogowano jako: <b>{{ getCurrentUser().firstName }} {{ getCurrentUser().lastName }}</b> ({{ getCurrentUser().nickname }})</p>
       </div>
     </div>
 
-    <button class="auth-button" @click="showLoginModal" v-if="!isLoggedIn">Zaloguj się</button>
-    <button class="auth-button" @click="showRegisterModal" v-if="!isLoggedIn">Zarejestruj się</button>
 
-    <!-- Modal -->
     <div v-if="isModalVisible" class="modal">
       <div class="modal-content">
         <span class="close" @click="closeModal">&times;</span>
         <div v-if="isLoginVisible">
           <h2>Logowanie</h2>
           <form @submit.prevent="login">
-            <!-- Formularz logowania -->
-            <label>Email: <input v-model="loginData.email" type="text" /></label>
-            <label>Hasło: <input v-model="loginData.password" type="password" /></label>
+            <label>Email: <input v-model="loginData.email" type="text" class="custom-input " /></label>
+            <label>Hasło: <input v-model="loginData.password" type="password" class="custom-input"/></label>
             <button type="submit">Zaloguj się</button>
           </form>
         </div>
         <div v-else>
           <h2>Rejestracja</h2>
           <form @submit.prevent="register">
-            <!-- Formularz rejestracji -->
-            <label>Imię: <input v-model="registerData.firstName" type="text" /></label>
-            <label>Nazwisko: <input v-model="registerData.lastName" type="text" /></label>
-            <label>Email: <input v-model="registerData.email" type="text" /></label>
-            <label>Hasło: <input v-model="registerData.password" type="password" /></label>
-            <label>Pseudonim: <input v-model="registerData.nickname" type="text" /></label>
+            <label>Imię: <input v-model="registerData.firstName" type="text" class="custom-input"/></label>
+            <label>Nazwisko: <input v-model="registerData.lastName" type="text" class="custom-input"/></label>
+            <label>Email: <input v-model="registerData.email" type="text" class="custom-input"/></label>
+            <label>Hasło: <input v-model="registerData.password" type="password" class="custom-input"/></label>
+            <label>Pseudonim: <input v-model="registerData.nickname" type="text" class="custom-input"/></label>
             <button type="submit">Zarejestruj się</button>
           </form>
         </div>
       </div>
     </div>
 
-    <div v-if="isLoggedIn">
+    <div class="button-container" v-if="isLoggedIn">
       <span v-if="getCurrentUser().ifAdmin == 1">
         <div class="kontener1 centered-text text-white">
           <label>Dodaj nową listę zadań: ‎ </label>
-          <input v-model="newListName" @keyup.enter="addTaskList" />
-          <button @click="addTaskList">Dodaj</button>
+          <input v-model="newListName" @keyup.enter="addTaskList" class="custom-input"/>
+          <button @click="addTaskList" style="margin-left: 5px;">Dodaj</button>
         </div>
       </span>
 
@@ -67,26 +61,27 @@
               
               <span v-if="getCurrentUser().ifAdmin == 1">
                 <button @click="removeTaskList(index)">Usuń</button>
+                <br>
                 <select v-model="selectedListForDelete">
-                <option v-for="user in users" :value="user.id">{{ user.firstName }} {{ user.lastName }}</option>
-              </select>
-              <button @click="assignTaskListToUser(list.id, selectedListForDelete)">Przypisz użytkownika</button>
+                  <option v-for="user in users" :value="user.id">{{ user.firstName }} {{ user.lastName }}</option>
+                </select>
+                <button @click="assignTaskListToUser(list.id, selectedListForDelete)">Przypisz użytkownika</button>
+                <br>
+                <select v-model="selectedOwnerForAssignment">
+                  <option v-for="user in users" :value="user.id">{{ user.firstName }} {{ user.lastName }}</option>
+                </select>
+                <button @click="assignOwnerToTaskList(list.id, selectedOwnerForAssignment)">Przypisz właściciela</button>
+                <br>
 
-              <select v-model="selectedOwnerForAssignment">
-                <option v-for="user in users" :value="user.id">{{ user.firstName }} {{ user.lastName }}</option>
-              </select>
-              <button @click="assignOwnerToTaskList(list.id, selectedOwnerForAssignment)">Przypisz właściciela</button>
+                <select v-model="selectedUserForDeleteFromList">
+                    <option value="">Wybierz użytkownika</option>
+                    <option v-for="user in list.idAssigned" :value="user">
+                        {{ findUserById(user).firstName }} {{ findUserById(user).lastName }}
+                    </option>
+                </select>
 
 
-              <select v-model="selectedUserForDeleteFromList">
-                  <option value="">Wybierz użytkownika</option>
-                  <option v-for="user in list.idAssigned" :value="user">
-                      {{ findUserById(user).firstName }} {{ findUserById(user).lastName }}
-                  </option>
-              </select>
-
-
-              <button @click="removeUserFromTaskList(selectedUserForDeleteFromList, list.id)">Usuń użytkownika z listy zadań</button>
+                <button @click="removeUserFromTaskList(selectedUserForDeleteFromList, list.id)">Usuń użytkownika z listy zadań</button>
 
               </span>
 
@@ -95,8 +90,8 @@
             <div class="margin-bottom-small">
               <div v-if="list.isAddingVisible != false && (getCurrentUser().id == list.idOwner || getCurrentUser().ifAdmin == 1)">
                 <label>Dodaj nowe zadanie: </label>
-                <input v-model="newTask.title" placeholder="Tytuł" />
-                <textarea v-model="newTask.description" placeholder="Opis"></textarea>
+                <input v-model="newTask.title" placeholder="Tytuł" class="custom-input"/>
+                <textarea v-model="newTask.description" placeholder="Opis" class="custom-input"></textarea>
                 <select v-model="newTask.status">
                   <option value="not-done">Niezrobione</option>
                   <option value="in-progress">W toku</option>
@@ -134,7 +129,7 @@
                 
                 <span v-else-if="task.id == editingTaskIndex && task.isDetailsVisible != false">
                   <input v-model="editedTask.title" placeholder="Tytuł" />
-                  <textarea v-model="editedTask.description" placeholder="Opis"></textarea>
+                  <textarea v-model="editedTask.description" placeholder="Opis" class="custom-input"></textarea>
                   <select v-model="editedTask.status">
                     <option value="not-done">Niezrobione</option>
                     <option value="in-progress">W toku</option>
