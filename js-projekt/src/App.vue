@@ -19,7 +19,7 @@
     </div>
 
     <div class="button-container" v-if="isLoggedIn">
-      <span v-if="getCurrentUser().ifAdmin == 1" class="kontener1 centered-text text-white">
+      <span v-if="getCurrentUser().ifAdmin == 1" class="kontener2 centered-text text-white">
         <div class="kontener1 centered-text text-white">
           <label style="font-size: large;" >Dodaj nową listę zadań: ‎ </label>
           <input v-model="newListName" @keyup.enter="addTaskList" class="custom-input"/>
@@ -28,7 +28,7 @@
       </span>
 
       <div>
-        <h2 class="text-white" style="text-align: center;">Twoje listy zadań:</h2>
+        <h2 class="text-white" style="text-align: center;">Dostępne listy zadań:</h2>
         <ul>
           <li v-for="(list, index) in taskLists" :key="index">
             <b style="color:#000000 ; font-size: x-large;">{{ list.name }}</b>
@@ -39,10 +39,7 @@
               <div class="modal-content">
                 <span class="close" @click="closeListModal">&times;</span>
                     <div style="margin-top: 10px;">
-                        <span v-if="list && (list.idOwner == getCurrentUser().id || getCurrentUser().ifAdmin == 1)">
-                            <button style="margin-left: 10px;" @click="toggleAddingVisibility(list)">Dodaj zadanie</button>
-                        </span>
-                      
+
                       <span v-if="getCurrentUser().ifAdmin == 1">
                         <button @click="removeTaskList(index)">Usuń</button>
                         <br>
@@ -68,7 +65,7 @@
                     </div>
                     
                     <div class="margin-bottom-small">
-                      <div v-if="list.isAddingVisible != false && (getCurrentUser().id == list.idOwner || getCurrentUser().ifAdmin == 1)">
+                      <div v-if="getCurrentUser().id == list.idOwner || getCurrentUser().ifAdmin == 1">
                         <label>Dodaj nowe zadanie: </label>
                         <div class="input-container" style="width: 100%;">
                           <input v-model="newTask.title" placeholder="Tytuł" class="custom-input"/>
@@ -107,29 +104,33 @@
                   <p v-if="task.assignedTo" style="font-size: large;" >Przypisane do: {{ findUserById(task.assignedTo).firstName }} {{ findUserById(task.assignedTo).lastName }}</p>
                   <span v-if="getCurrentUser().ifAdmin == 1 || getCurrentUser().id == list.idOwner">
                     <button @click="startEditingTask(index, task.id)">Edytuj</button>
-                    <button style="margin-left: 10px" @click="removeTask(index, task.id)">Usuń</button>
                   </span>
                 </span>
                 
                 <span v-else-if="task.id == editingTaskIndex && task.isDetailsVisible != false">
-                  <input v-model="editedTask.title" placeholder="Tytuł" />
-                  <textarea v-model="editedTask.description" placeholder="Opis" class="custom-input"></textarea>
-                  <select v-model="editedTask.status">
-                    <option value="not-done">Niezrobione</option>
-                    <option value="in-progress">W toku</option>
-                    <option value="completed">Zakończone</option>
-                  </select>
+                <div class="modal">
+                  <div class="modal-content">
+                    <input v-model="editedTask.title" placeholder="Tytuł" />
+                    <button style="margin-left: 10px" @click="removeTask(index, task.id)">Usuń</button>
+                    <textarea v-model="editedTask.description" placeholder="Opis" class="custom-input"></textarea>
+                    <select v-model="editedTask.status">
+                      <option value="not-done">Niezrobione</option>
+                      <option value="in-progress">W toku</option>
+                      <option value="completed">Zakończone</option>
+                    </select>
 
-                  <select v-model="editedTask.assignedTo">
-                    <option value="">Brak przypisania</option>
-                    <option v-for="userId in list.idAssigned" :value="userId">
-                      {{ findUserById(userId).firstName }} {{ findUserById(userId).lastName }}
-                    </option>
-                  </select>
+                    <select v-model="editedTask.assignedTo">
+                      <option value="">Brak przypisania</option>
+                      <option v-for="userId in list.idAssigned" :value="userId">
+                        {{ findUserById(userId).firstName }} {{ findUserById(userId).lastName }}
+                      </option>
+                    </select>
 
-                  <button @click="saveEditedTask(index, task.id)">Zapisz</button>
-                  <button @click="cancelEditingTask">Anuluj</button>
-                </span>
+                    <button @click="saveEditedTask(index, task.id)">Zapisz</button>
+                    <button @click="cancelEditingTask">Anuluj</button>
+                  </div>
+                </div>
+              </span>
 
                 <span v-else>
                   <div style="display: flex; justify-content: space-between; align-items: center;">
