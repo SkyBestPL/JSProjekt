@@ -32,7 +32,7 @@
         <ul>
           <li v-for="(list, index) in taskLists" :key="index">
             <b style="color:#000000 ; font-size: x-large;">{{ list.name }}</b>
-            <button v-if="getCurrentUser().ifAdmin == 1 || getCurrentUser().id == list.idOwner" @click="showListModal">Edytuj Listę</button>
+            <button v-if="getCurrentUser().ifAdmin == 1 || getCurrentUser().id == list.idOwner" @click="showListModal" style="float: right;">Edytuj Listę</button>
 
           <div v-if="isModalListVisible">
             <div class="modal">
@@ -100,7 +100,7 @@
                 <span v-if="task.id !== editingTaskIndex && task.isDetailsVisible != false">
                   <div style="display: flex; justify-content: space-between; align-items: center;">
                     <strong style="font-size: larger;" >{{ task.title }}</strong>
-                    <button style="margin-left: 10px; font-size: medium;" @click="toggleDetailsVisibility(task)">Pokaż/Schowaj szczegóły</button>
+                    <button style="margin-left: 10px;" @click="toggleDetailsVisibility(task)">Pokaż/Schowaj szczegóły</button>
                   </div>
                   <p v-if="task.isDetailsVisible" style="font-size: large;" >Opis: {{ task.description }}</p>
                   <p style="font-size: large;" >Status: {{ task.status }}</p>
