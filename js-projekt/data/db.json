@@ -48,7 +48,8 @@
       "idOwner": 1,
       "name": "dadfad",
       "idAssigned": [],
-      "tasks": []
+      "tasks": [],
+      "isAddingVisible": true
     }
   ],
   "users": [

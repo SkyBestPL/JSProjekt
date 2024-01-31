@@ -1,7 +1,7 @@
 <template>
   <div id="app">
     <div class="centered-text margin-bottom-small">
-      <h1>Zarządzanie Zadaniami</h1>
+      <h1 class="Title" >Zarządzanie Zadaniami</h1>
     </div>
 
     <div class="button-container" style="text-align: center;">
@@ -9,7 +9,7 @@
       <button @click="showRegisterModal" v-if="!isLoggedIn">Zarejestruj się</button>
       <button style="margin-top:10px " @click="logout" v-if="isLoggedIn">Wyloguj się</button>
       <div v-if="isLoggedIn" class="user-info">
-        <p style="text-align: center;" >Zalogowano jako: <b>{{ getCurrentUser().firstName }} {{ getCurrentUser().lastName }}</b> ({{ getCurrentUser().nickname }})</p>
+        <p style="text-align: center; font-size: large;" >Zalogowano jako: <b>{{ getCurrentUser().firstName }} {{ getCurrentUser().lastName }}</b> ({{ getCurrentUser().nickname }})</p>
       </div>
     </div>
 
@@ -21,17 +21,17 @@
     <div class="button-container" v-if="isLoggedIn">
       <span v-if="getCurrentUser().ifAdmin == 1" class="kontener1 centered-text text-white">
         <div class="kontener1 centered-text text-white">
-          <label>Dodaj nową listę zadań: ‎ </label>
+          <label style="font-size: large;" >Dodaj nową listę zadań: ‎ </label>
           <input v-model="newListName" @keyup.enter="addTaskList" class="custom-input"/>
           <button @click="addTaskList" style="margin-left: 5px;">Dodaj</button>
         </div>
       </span>
 
       <div>
-        <h2 class="text-white">Twoje listy zadań:</h2>
+        <h2 class="text-white" style="text-align: center;">Twoje listy zadań:</h2>
         <ul>
           <li v-for="(list, index) in taskLists" :key="index">
-            <b style="color:#000000">{{ list.name }}</b>
+            <b style="color:#000000 ; font-size: x-large;">{{ list.name }}</b>
 
             <div style="margin-top: 10px;">
               <span v-if="list.idOwner == getCurrentUser().id || getCurrentUser().ifAdmin == 1">
@@ -39,7 +39,7 @@
               </span>
               
               <span v-if="getCurrentUser().ifAdmin == 1">
-                <button @click="removeTaskList(index)">Usuń</button>
+                <button @click="removeTaskList(index)" >Usuń</button>
                 <br>
                 <select v-model="selectedListForDelete">
                   <option v-for="user in users" :value="user.id">{{ user.firstName }} {{ user.lastName }}</option>
@@ -68,9 +68,9 @@
             
             <div class="margin-bottom-small">
               <div v-if="list.isAddingVisible != false && (getCurrentUser().id == list.idOwner || getCurrentUser().ifAdmin == 1)">
-                <label>Dodaj nowe zadanie: </label>
+                <label style="font-size: larger;" >Dodaj nowe zadanie: </label>
                 <div class="input-container" style="width: 100%;">
-                  <input v-model="newTask.title" placeholder="Tytuł" class="custom-input"/>
+                  <input v-model="newTask.title" placeholder="Tytuł" class="custom-input" style="margin-top: 7px;"/>
                   <textarea v-model="newTask.description" placeholder="Opis" class="custom-input"></textarea>
                 </div>
                 <select v-model="newTask.status">
@@ -89,19 +89,19 @@
             </div>
 
             <span v-if="list.idOwner != null">
-              <p>Właściciel listy: <b class="owner">{{ findUserById(list.idOwner).nickname }}</b></p>
+              <p style="font-size: large;" >Właściciel listy: <b class="owner">{{ findUserById(list.idOwner).nickname }}</b></p>
             </span> 
 
             <ul>
               <li class="task" v-for="task in list.tasks" :key="task.id">
                 <span v-if="task.id !== editingTaskIndex && task.isDetailsVisible != false">
                   <div style="display: flex; justify-content: space-between; align-items: center;">
-                    <strong>{{ task.title }}</strong>
-                    <button style="margin-left: 10px;" @click="toggleDetailsVisibility(task)">Pokaż/Schowaj szczegóły</button>
+                    <strong style="font-size: larger;" >{{ task.title }}</strong>
+                    <button style="margin-left: 10px; font-size: medium;" @click="toggleDetailsVisibility(task)">Pokaż/Schowaj szczegóły</button>
                   </div>
-                  <p v-if="task.isDetailsVisible">Opis: {{ task.description }}</p>
-                  <p>Status: {{ task.status }}</p>
-                  <p v-if="task.assignedTo">Przypisane do: {{ findUserById(task.assignedTo).firstName }} {{ findUserById(task.assignedTo).lastName }}</p>
+                  <p v-if="task.isDetailsVisible" style="font-size: large;" >Opis: {{ task.description }}</p>
+                  <p style="font-size: large;" >Status: {{ task.status }}</p>
+                  <p v-if="task.assignedTo" style="font-size: large;" >Przypisane do: {{ findUserById(task.assignedTo).firstName }} {{ findUserById(task.assignedTo).lastName }}</p>
                   <span v-if="getCurrentUser().ifAdmin == 1 || getCurrentUser().id == list.idOwner">
                     <button @click="startEditingTask(index, task.id)">Edytuj</button>
                     <button style="margin-left: 10px" @click="removeTask(index, task.id)">Usuń</button>
@@ -130,15 +130,15 @@
 
                 <span v-else>
                   <div style="display: flex; justify-content: space-between; align-items: center;">
-                    <strong>{{ task.title }}</strong>
-                    <button style="margin-left: 10px;" @click="toggleDetailsVisibility(task)">Pokaż/Schowaj szczegóły</button>
+                    <strong style="font-size: larger;" >{{ task.title }}</strong>
+                    <button style="margin-left: 10px; " @click="toggleDetailsVisibility(task)">Pokaż/Schowaj szczegóły</button>
                   </div>
                 </span>
               </li>
             </ul>
 
             <span v-if="list.idAssigned != null">
-              <p>Przypisani do listy: 
+              <p style="font-size: large;" >Przypisani do listy: 
                 <span v-for="moderatorId in list.idAssigned" :key="moderatorId">
                   <b style="color:black">{{ findUserById(moderatorId).nickname }}</b>,
                 </span>
