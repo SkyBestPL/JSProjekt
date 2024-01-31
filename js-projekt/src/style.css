@@ -105,3 +105,13 @@ button:hover {
   text-align: right;
   color: #8dffe4;
 }
+
+.owner {
+  color: #8dffe4; 
+  background-color:#002e32; 
+  padding-left: 5px; 
+  padding-right: 5px;
+  padding-bottom: 3px;
+  padding-top: 3px;
+  border-radius: 5px;
+}

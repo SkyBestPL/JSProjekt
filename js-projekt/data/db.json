@@ -16,16 +16,18 @@
       ],
       "isDetailsVisible": false,
       "isAddingVisible": false,
-      "idModer": [
+      "idAssigned": [
         1,
         2
-      ]
+      ],
+      "idOwner": 3
     },
     {
       "id": 2,
       "name": "nowa lista",
-      "idModer": [
-        2
+      "idAssigned": [
+        2,
+        1
       ],
       "tasks": [
         {
@@ -38,7 +40,8 @@
           "isAddingVisible": false
         }
       ],
-      "isAddingVisible": false
+      "isAddingVisible": false,
+      "idOwner": 3
     }
   ],
   "users": [
@@ -50,7 +53,8 @@
       "password": "haslo1234",
       "nickname": "kowal",
       "taskListIds": [
-        1
+        1,
+        2
       ],
       "ifAdmin": 1
     },
@@ -66,9 +70,19 @@
         1
       ],
       "ifAdmin": 0
+    },
+    {
+      "id": 3,
+      "firstName": "Szymon",
+      "lastName": "Gwozdziej",
+      "email": "szymon.gwozdziej@gmail.com",
+      "password": "123456",
+      "nickname": "SkyBestPL",
+      "taskListIds": [],
+      "ifAdmin": 0
     }
   ],
-  "userIdCounter": 3,
+  "userIdCounter": 4,
   "taskIdCounter": 3,
   "listIdCounter": 3
 }

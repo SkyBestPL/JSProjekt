@@ -46,25 +46,35 @@
     </div>
 
     <div v-if="isLoggedIn">
-      <div class="kontener1 centered-text text-white">
-        <label>Dodaj nową listę zadań: ‎ </label>
-        <input v-model="newListName" @keyup.enter="addTaskList" />
-        <button @click="addTaskList">Dodaj</button>
-      </div>
+      <span v-if="getCurrentUser().ifAdmin == 1">
+        <div class="kontener1 centered-text text-white">
+          <label>Dodaj nową listę zadań: ‎ </label>
+          <input v-model="newListName" @keyup.enter="addTaskList" />
+          <button @click="addTaskList">Dodaj</button>
+        </div>
+      </span>
 
       <div>
         <h2 class="text-white">Twoje listy zadań:</h2>
         <ul>
           <li v-for="(list, index) in taskLists" :key="index">
-            {{ list.name }}
-            <button @click="removeTaskList(index)">Usuń</button>
-            <button style="margin-left: 10px;" @click="toggleAddingVisibility(list)">Dodaj zadanie</button>
+            <b style="color:#000000;">{{ list.name }}</b>
+
+            <span v-if="list.idOwner == getCurrentUser().id">
+              <button style="margin-left: 10px;" @click="toggleAddingVisibility(list)">Dodaj zadanie</button>
+            </span>
             
             <span v-if="getCurrentUser().ifAdmin == 1">
+              <button @click="removeTaskList(index)">Usuń</button>
               <select v-model="selectedUserForAssignment">
               <option v-for="user in users" :value="user.id">{{ user.firstName }} {{ user.lastName }}</option>
             </select>
-            <button @click="assignTaskListToUser(list.id, selectedUserForAssignment)">Przypisz listę</button>
+            <button @click="assignTaskListToUser(list.id, selectedUserForAssignment)">Przypisz użytkownika</button>
+
+            <select v-model="selectedOwnerForAssignment">
+              <option v-for="user in users" :value="user.id">{{ user.firstName }} {{ user.lastName }}</option>
+            </select>
+            <button @click="assignOwnerToTaskList(list.id, selectedOwnerForAssignment)">Przypisz właściciela</button>
             </span>
             
             <div class="margin-bottom-small">
@@ -87,14 +97,10 @@
               
             </div>
 
-            <span v-if="list.idModer != null">
-              <p>Zarządzający: 
-                <span v-for="moderatorId in list.idModer" :key="moderatorId">
-                  {{ findUserById(moderatorId).nickname }},
-                </span>
-              </p>
-            </span>
-            
+            <span v-if="list.idOwner != null">
+              <p>Właściciel listy: <b class="owner">{{ findUserById(list.idOwner).nickname }}</b></p>
+            </span> 
+
             <ul>
               <li class="task" v-for="task in list.tasks" :key="task.id">
                 <span v-if="task.id !== editingTaskIndex && task.isDetailsVisible != false">
@@ -105,9 +111,12 @@
                   <p v-if="task.isDetailsVisible">{{ task.description }}</p>
                   <p>Status: {{ task.status }}</p>
                   <p v-if="task.assignedTo">Przypisane do: {{ findUserById(task.assignedTo).firstName }} {{ findUserById(task.assignedTo).lastName }}</p>
-                  <button @click="startEditingTask(index, task.id)">Edytuj</button>
-                  <button style="margin-left: 10px" @click="removeTask(index, task.id)">Usuń</button>
+                  <span v-if="getCurrentUser().ifAdmin == 1 || getCurrentUser().id == list.idOwner">
+                    <button @click="startEditingTask(index, task.id)">Edytuj</button>
+                    <button style="margin-left: 10px" @click="removeTask(index, task.id)">Usuń</button>
+                  </span>
                 </span>
+                
                 <span v-else-if="task.id == editingTaskIndex && task.isDetailsVisible != false">
                   <input v-model="editedTask.title" placeholder="Tytuł" />
                   <textarea v-model="editedTask.description" placeholder="Opis"></textarea>
@@ -123,6 +132,7 @@
                   <button @click="saveEditedTask(index, task.id)">Zapisz</button>
                   <button @click="cancelEditingTask">Anuluj</button>
                 </span>
+
                 <span v-else>
                   <div style="display: flex; justify-content: space-between; align-items: center;">
                     <strong>{{ task.title }}</strong>
@@ -131,6 +141,14 @@
                 </span>
               </li>
             </ul>
+
+            <span v-if="list.idAssigned != null">
+              <p>Przypisani do listy: 
+                <span v-for="moderatorId in list.idAssigned" :key="moderatorId">
+                  <b style="color:black">{{ findUserById(moderatorId).nickname }}</b>,
+                </span>
+              </p>
+            </span>
 
           </li>
         </ul>
@@ -186,8 +204,9 @@ const addTaskList = () => {
     const idList = listIdCounter.value;
     taskLists.value.push({
       id: idList,
+      idOwner,
       name: newListName.value,
-      idModer: [],
+      idAssigned: [],
       tasks: [],
     });
     listIdCounter.value += 1;
@@ -363,14 +382,27 @@ const toggleAddingVisibility = (list) => {
   updateServerData();
 };
 
+const assignOwnerToTaskList = async (listId, userId) => {
+  try {
+
+    const Lista = findListById(listId);
+
+    Lista.idOwner = userId;
+
+    await updateServerData();
+  } catch (error) {
+    console.error('Error assigning owner to task list', error);
+  }
+};
+
 const assignTaskListToUser = async (listId, userId) => {
   try {
     const user = findUserById(userId);
 
     const Lista = findListById(listId);
 
-    if(!Lista.idModer.includes(userId)){
-      Lista.idModer.push(userId);
+    if(!Lista.idAssigned.includes(userId)){
+      Lista.idAssigned.push(userId);
     } else {
       console.log('User already assigned to list');
     }
