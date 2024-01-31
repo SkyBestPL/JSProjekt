@@ -58,24 +58,26 @@
         <h2 class="text-white">Twoje listy zadań:</h2>
         <ul>
           <li v-for="(list, index) in taskLists" :key="index">
-            <b style="color:#000000;">{{ list.name }}</b>
+            <b style="color:#000000">{{ list.name }}</b>
 
-            <span v-if="list.idOwner == getCurrentUser().id">
-              <button style="margin-left: 10px;" @click="toggleAddingVisibility(list)">Dodaj zadanie</button>
-            </span>
-            
-            <span v-if="getCurrentUser().ifAdmin == 1">
-              <button @click="removeTaskList(index)">Usuń</button>
-              <select v-model="selectedUserForAssignment">
-              <option v-for="user in users" :value="user.id">{{ user.firstName }} {{ user.lastName }}</option>
-            </select>
-            <button @click="assignTaskListToUser(list.id, selectedUserForAssignment)">Przypisz użytkownika</button>
+            <div style="margin-top: 10px;">
+              <span v-if="list.idOwner == getCurrentUser().id || getCurrentUser().ifAdmin == 1">
+                <button style="margin-left: 10px;" @click="toggleAddingVisibility(list)">Dodaj zadanie</button>
+              </span>
+              
+              <span v-if="getCurrentUser().ifAdmin == 1">
+                <button @click="removeTaskList(index)">Usuń</button>
+                <select v-model="selectedUserForAssignment">
+                <option v-for="user in users" :value="user.id">{{ user.firstName }} {{ user.lastName }}</option>
+              </select>
+              <button @click="assignTaskListToUser(list.id, selectedUserForAssignment)">Przypisz użytkownika</button>
 
-            <select v-model="selectedOwnerForAssignment">
-              <option v-for="user in users" :value="user.id">{{ user.firstName }} {{ user.lastName }}</option>
-            </select>
-            <button @click="assignOwnerToTaskList(list.id, selectedOwnerForAssignment)">Przypisz właściciela</button>
-            </span>
+              <select v-model="selectedOwnerForAssignment">
+                <option v-for="user in users" :value="user.id">{{ user.firstName }} {{ user.lastName }}</option>
+              </select>
+              <button @click="assignOwnerToTaskList(list.id, selectedOwnerForAssignment)">Przypisz właściciela</button>
+              </span>
+            </div>
             
             <div class="margin-bottom-small">
               <div v-if="list.isAddingVisible != false">
@@ -204,7 +206,7 @@ const addTaskList = () => {
     const idList = listIdCounter.value;
     taskLists.value.push({
       id: idList,
-      idOwner,
+      idOwner: 1,
       name: newListName.value,
       idAssigned: [],
       tasks: [],

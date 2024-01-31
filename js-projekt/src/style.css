@@ -31,12 +31,12 @@ button {
   padding: 7px 13px;
   font-size: 13px;
   font-weight: bold;
-  color: #ffffff; /* Kolor tekstu */
-  background-color: #002e32; /* Kolor tła */
+  color: #ffffff;
+  background-color: #002e32;
   border: none;
   border-radius: 5px;
   cursor: pointer;
-  transition: background-color 0.3s ease; /* Efekt przejścia */
+  transition: background-color 0.3s ease;
 }
 
 /* Zmiana koloru po najechaniu */
