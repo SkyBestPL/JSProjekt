@@ -65,9 +65,6 @@
               <option v-for="user in users" :value="user.id">{{ user.firstName }} {{ user.lastName }}</option>
             </select>
             <button @click="assignTaskListToUser(list.id, selectedUserForAssignment)">Przypisz listę</button>
-            <!-- <span v-if="list.idModer != null">
-              <p>Zarządza:  {{ findUserById(list.idModer).firstName }}</p>
-            </span> -->
             </span>
             
             <div class="margin-bottom-small">
@@ -89,6 +86,15 @@
               </div>
               
             </div>
+
+            <span v-if="list.idModer != null">
+              <p>Zarządzający: 
+                <span v-for="moderatorId in list.idModer" :key="moderatorId">
+                  {{ findUserById(moderatorId).nickname }},
+                </span>
+              </p>
+            </span>
+            
             <ul>
               <li class="task" v-for="task in list.tasks" :key="task.id">
                 <span v-if="task.id !== editingTaskIndex && task.isDetailsVisible != false">
@@ -181,7 +187,7 @@ const addTaskList = () => {
     taskLists.value.push({
       id: idList,
       name: newListName.value,
-      idModer: 0,
+      idModer: [],
       tasks: [],
     });
     listIdCounter.value += 1;
@@ -363,7 +369,11 @@ const assignTaskListToUser = async (listId, userId) => {
 
     const Lista = findListById(listId);
 
-    Lista.idModer = userId;
+    if(!Lista.idModer.includes(userId)){
+      Lista.idModer.push(userId);
+    } else {
+      console.log('User already assigned to list');
+    }
 
     if (!user) {
       console.error('User not found');

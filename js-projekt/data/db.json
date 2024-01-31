@@ -5,16 +5,8 @@
       "name": "lista pierwsza",
       "tasks": [
         {
-          "id": 1,
-          "title": "Zadanie pierwsze",
-          "description": "brak opisu",
-          "status": "in-progress",
-          "assignedTo": 1,
-          "isDetailsVisible": false
-        },
-        {
           "id": 2,
-          "title": "sadasd",
+          "title": "sadasdss",
           "description": "asda",
           "status": "not-done",
           "assignedTo": "",
@@ -23,18 +15,25 @@
         }
       ],
       "isDetailsVisible": false,
-      "isAddingVisible": false
+      "isAddingVisible": false,
+      "idModer": [
+        1,
+        2
+      ]
     },
     {
       "id": 2,
-      "name": "asdas",
+      "name": "nowa lista",
+      "idModer": [
+        2
+      ],
       "tasks": [
         {
-          "id": 3,
-          "title": "sadasd",
-          "description": "asdas",
-          "status": "not-done",
-          "assignedTo": "",
+          "id": 2,
+          "title": "zadanie nowe",
+          "description": "xd",
+          "status": "completed",
+          "assignedTo": 2,
           "isDetailsVisible": false,
           "isAddingVisible": false
         }
@@ -50,41 +49,26 @@
       "email": "jan.kowalski@gmail.com",
       "password": "haslo1234",
       "nickname": "kowal",
-      "taskListIds": []
+      "taskListIds": [
+        1
+      ],
+      "ifAdmin": 1
     },
     {
       "id": 2,
       "firstName": "x",
       "lastName": "x",
-      "email": "x@x.pl",
-      "password": "x",
-      "nickname": "",
+      "email": "x.xi@gmail.com",
+      "password": "123456",
+      "nickname": "x",
       "taskListIds": [
+        2,
         1
-      ]
-    },
-    {
-      "id": 3,
-      "firstName": "admin",
-      "lastName": "admin",
-      "email": "admin@admin.pl",
-      "password": "admin",
-      "nickname": "admin",
-      "taskListIds": [],
-      "ifAdmin": 1
-    },
-    {
-      "id": 4,
-      "firstName": "m",
-      "lastName": "m",
-      "email": "m@m.pl",
-      "password": "m",
-      "nickname": "m",
-      "taskListIds": [],
-      "ifAdmin": 1
+      ],
+      "ifAdmin": 0
     }
   ],
-  "userIdCounter": 5,
-  "taskIdCounter": 4,
+  "userIdCounter": 3,
+  "taskIdCounter": 3,
   "listIdCounter": 3
 }
