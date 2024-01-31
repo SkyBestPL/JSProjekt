@@ -32,61 +32,64 @@
         <ul>
           <li v-for="(list, index) in taskLists" :key="index">
             <b style="color:#000000 ; font-size: x-large;">{{ list.name }}</b>
+            <button v-if="getCurrentUser().ifAdmin == 1 || getCurrentUser().id == list.idOwner" @click="showListModal">Edytuj Listę</button>
 
-            <div style="margin-top: 10px;">
-              <span v-if="list.idOwner == getCurrentUser().id || getCurrentUser().ifAdmin == 1">
-                <button style="margin-left: 10px;" @click="toggleAddingVisibility(list)">Dodaj zadanie</button>
-              </span>
-              
-              <span v-if="getCurrentUser().ifAdmin == 1">
-                <button @click="removeTaskList(index)" >Usuń</button>
-                <br>
-                <select v-model="selectedListForDelete">
-                  <option v-for="user in users" :value="user.id">{{ user.firstName }} {{ user.lastName }}</option>
-                </select>
-                <button @click="assignTaskListToUser(list.id, selectedListForDelete)">Przypisz użytkownika</button>
-                <br>
-                <select v-model="selectedOwnerForAssignment">
-                  <option v-for="user in users" :value="user.id">{{ user.firstName }} {{ user.lastName }}</option>
-                </select>
-                <button @click="assignOwnerToTaskList(list.id, selectedOwnerForAssignment)">Przypisz właściciela</button>
-                <br>
+          <div v-if="isModalListVisible">
+            <div class="modal">
+              <div class="modal-content">
+                <span class="close" @click="closeListModal">&times;</span>
+                    <div style="margin-top: 10px;">
+                        <span v-if="list && (list.idOwner == getCurrentUser().id || getCurrentUser().ifAdmin == 1)">
+                            <button style="margin-left: 10px;" @click="toggleAddingVisibility(list)">Dodaj zadanie</button>
+                        </span>
+                      
+                      <span v-if="getCurrentUser().ifAdmin == 1">
+                        <button @click="removeTaskList(index)">Usuń</button>
+                        <br>
+                        <select v-model="selectedListForDelete">
+                          <option v-for="user in users" :value="user.id">{{ user.firstName }} {{ user.lastName }}</option>
+                        </select>
+                        <button @click="assignTaskListToUser(list.id, selectedListForDelete)">Przypisz użytkownika</button>
+                        <br>
+                        <select v-model="selectedOwnerForAssignment">
+                          <option v-for="user in users" :value="user.id">{{ user.firstName }} {{ user.lastName }}</option>
+                        </select>
+                        <button @click="assignOwnerToTaskList(list.id, selectedOwnerForAssignment)">Przypisz właściciela</button>
+                        <br>
 
-                <select v-model="selectedUserForDeleteFromList">
-                    <option value="">Wybierz użytkownika</option>
-                    <option v-for="user in list.idAssigned" :value="user">
-                        {{ findUserById(user).firstName }} {{ findUserById(user).lastName }}
-                    </option>
-                </select>
+                        <select v-model="selectedUserForDeleteFromList">
+                            <option value="">Wybierz użytkownika</option>
+                            <option v-for="user in list.idAssigned" :value="user">
+                                {{ findUserById(user) && findUserById(user).firstName }} {{ findUserById(user) && findUserById(user).lastName }}
+                            </option>
+                        </select>
+                        <button @click="removeUserFromTaskList(selectedUserForDeleteFromList, list.id)">Usuń użytkownika z listy zadań</button>
+                      </span>
+                    </div>
+                    
+                    <div class="margin-bottom-small">
+                      <div v-if="list.isAddingVisible != false && (getCurrentUser().id == list.idOwner || getCurrentUser().ifAdmin == 1)">
+                        <label>Dodaj nowe zadanie: </label>
+                        <div class="input-container" style="width: 100%;">
+                          <input v-model="newTask.title" placeholder="Tytuł" class="custom-input"/>
+                          <textarea v-model="newTask.description" placeholder="Opis" class="custom-input"></textarea>
+                        </div>
+                        <select v-model="newTask.status">
+                          <option value="not-done">Niezrobione</option>
+                          <option value="in-progress">W toku</option>
+                          <option value="completed">Zakończone</option>
+                        </select>
+                        <select v-model="newTask.assignedTo">
+                          <option value="">Brak przypisania</option>
+                          <option v-for="user in users" :value="user.id">{{ user.firstName }} {{ user.lastName }}</option>
+                        </select>
+                        <button @click="addTask(index); toggleAddingVisibility(list)">Dodaj</button>
+                      </div>
+                    </div>
 
-
-                <button @click="removeUserFromTaskList(selectedUserForDeleteFromList, list.id)">Usuń użytkownika z listy zadań</button>
-
-              </span>
-
-            </div>
-            
-            <div class="margin-bottom-small">
-              <div v-if="list.isAddingVisible != false && (getCurrentUser().id == list.idOwner || getCurrentUser().ifAdmin == 1)">
-                <label style="font-size: larger;" >Dodaj nowe zadanie: </label>
-                <div class="input-container" style="width: 100%;">
-                  <input v-model="newTask.title" placeholder="Tytuł" class="custom-input" style="margin-top: 7px;"/>
-                  <textarea v-model="newTask.description" placeholder="Opis" class="custom-input"></textarea>
-                </div>
-                <select v-model="newTask.status">
-                  <option value="not-done">Niezrobione</option>
-                  <option value="in-progress">W toku</option>
-                  <option value="completed">Zakończone</option>
-                </select>
-                <select v-model="newTask.assignedTo">
-                  <option value="">Brak przypisania</option>
-                  <option v-for="user in users" :value="user.id">{{ user.firstName }} {{ user.lastName }}</option>
-                </select>
-
-                <button @click="addTask(index); toggleAddingVisibility(list)">Dodaj</button>
               </div>
-              
             </div>
+          </div>
 
             <span v-if="list.idOwner != null">
               <p style="font-size: large;" >Właściciel listy: <b class="owner">{{ findUserById(list.idOwner).nickname }}</b></p>
@@ -172,6 +175,7 @@ const taskLists = ref([]);
 const editingTaskIndex = ref(null);
 const editedTask = ref({ id: '', title: '', description: '', status: '', assignedTo: '' });
 const isModalVisible = ref(false);
+const isModalListVisible = ref(false);
 const isLoginVisible = ref(true);
 const loginData = ref({ email: '', password: '' });
 const registerData = ref({ firstName: '', lastName: '', email: '', password: '', nickname: '' });
@@ -284,9 +288,17 @@ const showRegisterModal = () => {
   isLoginVisible.value = false;
 };
 
+const showListModal = () => {
+  isModalListVisible.value = true;
+};
+
 //metoda zamknięcia okna modalnego
 const closeModal = () => {
   isModalVisible.value = false;
+};
+
+const closeListModal = () => {
+  isModalListVisible.value = false;
 };
 
 //metoda wylogowania użytkownika
