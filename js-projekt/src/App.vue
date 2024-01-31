@@ -4,7 +4,7 @@
       <h1>Zarządzanie Zadaniami</h1>
     </div>
 
-    <div class="button-container">
+    <div class="button-container" style="text-align: center;">
       <button @click="showLoginModal" v-if="!isLoggedIn">Zaloguj się</button>
       <button @click="showRegisterModal" v-if="!isLoggedIn">Zarejestruj się</button>
       <button style="margin-top:10px " @click="logout" v-if="isLoggedIn">Wyloguj się</button>
@@ -22,7 +22,7 @@
           <form @submit.prevent="login">
             <label>Email: <input v-model="loginData.email" type="text" class="custom-input " /></label>
             <label>Hasło: <input v-model="loginData.password" type="password" class="custom-input"/></label>
-            <button type="submit">Zaloguj się</button>
+            <button type="submit" style="margin-left: 10px;">Zaloguj się</button>
           </form>
         </div>
         <div v-else>
@@ -40,7 +40,7 @@
     </div>
 
     <div class="button-container" v-if="isLoggedIn">
-      <span v-if="getCurrentUser().ifAdmin == 1">
+      <span v-if="getCurrentUser().ifAdmin == 1" class="kontener1 centered-text text-white">
         <div class="kontener1 centered-text text-white">
           <label>Dodaj nową listę zadań: ‎ </label>
           <input v-model="newListName" @keyup.enter="addTaskList" class="custom-input"/>
@@ -90,8 +90,10 @@
             <div class="margin-bottom-small">
               <div v-if="list.isAddingVisible != false && (getCurrentUser().id == list.idOwner || getCurrentUser().ifAdmin == 1)">
                 <label>Dodaj nowe zadanie: </label>
-                <input v-model="newTask.title" placeholder="Tytuł" class="custom-input"/>
-                <textarea v-model="newTask.description" placeholder="Opis" class="custom-input"></textarea>
+                <div class="input-container" style="width: 100%;">
+                  <input v-model="newTask.title" placeholder="Tytuł" class="custom-input"/>
+                  <textarea v-model="newTask.description" placeholder="Opis" class="custom-input"></textarea>
+                </div>
                 <select v-model="newTask.status">
                   <option value="not-done">Niezrobione</option>
                   <option value="in-progress">W toku</option>
