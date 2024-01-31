@@ -67,16 +67,29 @@
               
               <span v-if="getCurrentUser().ifAdmin == 1">
                 <button @click="removeTaskList(index)">Usuń</button>
-                <select v-model="selectedUserForAssignment">
+                <select v-model="selectedListForDelete">
                 <option v-for="user in users" :value="user.id">{{ user.firstName }} {{ user.lastName }}</option>
               </select>
-              <button @click="assignTaskListToUser(list.id, selectedUserForAssignment)">Przypisz użytkownika</button>
+              <button @click="assignTaskListToUser(list.id, selectedListForDelete)">Przypisz użytkownika</button>
 
               <select v-model="selectedOwnerForAssignment">
                 <option v-for="user in users" :value="user.id">{{ user.firstName }} {{ user.lastName }}</option>
               </select>
               <button @click="assignOwnerToTaskList(list.id, selectedOwnerForAssignment)">Przypisz właściciela</button>
+
+
+              <select v-model="selectedUserForDeleteFromList">
+                  <option value="">Wybierz użytkownika</option>
+                  <option v-for="user in list.idAssigned" :value="user">
+                      {{ findUserById(user).firstName }} {{ findUserById(user).lastName }}
+                  </option>
+              </select>
+
+
+              <button @click="removeUserFromTaskList(selectedUserForDeleteFromList, list.id)">Usuń użytkownika z listy zadań</button>
+
               </span>
+
             </div>
             
             <div class="margin-bottom-small">
@@ -429,6 +442,46 @@ const assignTaskListToUser = async (listId, userId) => {
     console.error('Error assigning task list to user', error);
   }
 };
+
+const removeUserFromTaskList = async (userId, listId) => {
+  try {
+    const list = findListById(listId);
+    if (list) {
+      const userIndex = list.idAssigned.indexOf(userId);
+      if (userIndex !== -1) {
+        list.idAssigned.splice(userIndex, 1);
+        await updateServerData();
+        removeTaskListFromUser(userId, listId);
+      } else {
+        console.log('User not found in the task list');
+      }
+    } else {
+      console.log('Task list not found');
+    }
+  } catch (error) {
+    console.error('Error removing user from task list', error);
+  }
+};
+
+const removeTaskListFromUser = async (userId, listId) => {
+  try {
+    const user = findUserById(userId);
+    if (user) {
+      const listIndex = user.taskListIds.indexOf(listId);
+      if (listIndex !== -1) {
+        user.taskListIds.splice(listIndex, 1);
+        await updateServerData();
+      } else {
+        console.log('Task list not found in the user');
+      }
+    } else {
+      console.log('User not found');
+    }
+  } catch (error) {
+    console.error('Error removing task list from user', error);
+  }
+};
+
 
 // Metoda inicjalizująca dane po załadowaniu komponentu
 onMounted(async () => {

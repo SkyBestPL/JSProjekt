@@ -18,7 +18,7 @@
       "isAddingVisible": false,
       "idAssigned": [
         1,
-        2
+        3
       ],
       "idOwner": 3
     },
@@ -42,6 +42,13 @@
       ],
       "isAddingVisible": false,
       "idOwner": 3
+    },
+    {
+      "id": 4,
+      "idOwner": 1,
+      "name": "dadfad",
+      "idAssigned": [],
+      "tasks": []
     }
   ],
   "users": [
@@ -66,8 +73,7 @@
       "password": "123456",
       "nickname": "x",
       "taskListIds": [
-        2,
-        1
+        2
       ],
       "ifAdmin": 0
     },
@@ -78,11 +84,23 @@
       "email": "szymon.gwozdziej@gmail.com",
       "password": "123456",
       "nickname": "SkyBestPL",
-      "taskListIds": [],
+      "taskListIds": [
+        1
+      ],
       "ifAdmin": 0
+    },
+    {
+      "id": 5,
+      "firstName": "admin",
+      "lastName": "admin",
+      "email": "admin@admin.pl",
+      "password": "admin",
+      "nickname": "admin",
+      "taskListIds": [],
+      "ifAdmin": 1
     }
   ],
-  "userIdCounter": 4,
+  "userIdCounter": 6,
   "taskIdCounter": 3,
-  "listIdCounter": 3
+  "listIdCounter": 5
 }
