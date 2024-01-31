@@ -80,7 +80,7 @@
             </div>
             
             <div class="margin-bottom-small">
-              <div v-if="list.isAddingVisible != false">
+              <div v-if="list.isAddingVisible != false && (getCurrentUser().id == list.idOwner || getCurrentUser().ifAdmin == 1)">
                 <label>Dodaj nowe zadanie: </label>
                 <input v-model="newTask.title" placeholder="Tytuł" />
                 <textarea v-model="newTask.description" placeholder="Opis"></textarea>
@@ -110,7 +110,7 @@
                     <strong>{{ task.title }}</strong>
                     <button style="margin-left: 10px;" @click="toggleDetailsVisibility(task)">Pokaż/Schowaj szczegóły</button>
                   </div>
-                  <p v-if="task.isDetailsVisible">{{ task.description }}</p>
+                  <p v-if="task.isDetailsVisible">Opis: {{ task.description }}</p>
                   <p>Status: {{ task.status }}</p>
                   <p v-if="task.assignedTo">Przypisane do: {{ findUserById(task.assignedTo).firstName }} {{ findUserById(task.assignedTo).lastName }}</p>
                   <span v-if="getCurrentUser().ifAdmin == 1 || getCurrentUser().id == list.idOwner">
@@ -127,10 +127,14 @@
                     <option value="in-progress">W toku</option>
                     <option value="completed">Zakończone</option>
                   </select>
+
                   <select v-model="editedTask.assignedTo">
                     <option value="">Brak przypisania</option>
-                    <option v-for="user in users" :value="user.id">{{ user.firstName }} {{ user.lastName }}</option>
+                    <option v-for="userId in list.idAssigned" :value="userId">
+                      {{ findUserById(userId).firstName }} {{ findUserById(userId).lastName }}
+                    </option>
                   </select>
+
                   <button @click="saveEditedTask(index, task.id)">Zapisz</button>
                   <button @click="cancelEditingTask">Anuluj</button>
                 </span>
