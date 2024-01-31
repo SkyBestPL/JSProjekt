@@ -13,30 +13,9 @@
       </div>
     </div>
 
-
-    <div v-if="isModalVisible" class="modal">
-      <div class="modal-content">
-        <span class="close" @click="closeModal">&times;</span>
-        <div v-if="isLoginVisible">
-          <h2>Logowanie</h2>
-          <form @submit.prevent="login">
-            <label>Email: <input v-model="loginData.email" type="text" class="custom-input " /></label>
-            <label>Hasło: <input v-model="loginData.password" type="password" class="custom-input"/></label>
-            <button type="submit" style="margin-left: 10px;">Zaloguj się</button>
-          </form>
-        </div>
-        <div v-else>
-          <h2>Rejestracja</h2>
-          <form @submit.prevent="register">
-            <label>Imię: <input v-model="registerData.firstName" type="text" class="custom-input"/></label>
-            <label>Nazwisko: <input v-model="registerData.lastName" type="text" class="custom-input"/></label>
-            <label>Email: <input v-model="registerData.email" type="text" class="custom-input"/></label>
-            <label>Hasło: <input v-model="registerData.password" type="password" class="custom-input"/></label>
-            <label>Pseudonim: <input v-model="registerData.nickname" type="text" class="custom-input"/></label>
-            <button type="submit">Zarejestruj się</button>
-          </form>
-        </div>
-      </div>
+    <!-- Komponent LoginModal -->
+    <div v-if="isModalVisible">
+      <LoginModal :isModalVisible="isModalVisible" :isLoginVisible="isLoginVisible" :isLoggedIn="isLoggedIn" @logowanie="handleLogin" @close="handleClose" @rejestracja="handleRegister"/>
     </div>
 
     <div class="button-container" v-if="isLoggedIn">
@@ -174,6 +153,7 @@
 </template>
 
 <script setup>
+import LoginModal from './components/LoginModal.vue'
 import { ref, onMounted } from 'vue';
 import axios from 'axios';
 
@@ -187,7 +167,6 @@ let newTask = {
   isDetailsVisible: false,
   isAddingVisible: false
 };
-
 
 const taskLists = ref([]);
 const editingTaskIndex = ref(null);
@@ -204,17 +183,7 @@ const listIdCounter = ref([]);
 const loggedInUserId = ref([]);
 const selectedUserForAssignment = ref('');
 
-
-// Metoda aktualizacji danych na serwerze
-const updateServerData = async () => {
-  try {
-    await axios.post('http://localhost:3001', { taskLists: taskLists.value, users: users.value, userIdCounter: userIdCounter.value, taskIdCounter: taskIdCounter.value, listIdCounter: listIdCounter.value });
-  } catch (error) {
-    console.error('Error updating data on the server', error);
-  }
-};
-
-// Metoda dodawania nowej listy zadań
+//metoda dodawania nowej listy zadań
 const addTaskList = () => {
   if (newListName.value.trim() !== '') {
     const idList = listIdCounter.value;
@@ -231,7 +200,7 @@ const addTaskList = () => {
   }
 };
 
-// Metoda usuwania listy zadań
+//metoda usuwania listy zadań
 const removeTaskList = (index) => {
   taskLists.value.splice(index, 1);
   updateServerData();
@@ -259,9 +228,7 @@ const addTask = (listIndex) => {
   }
 };
 
-
-
-// Metoda usuwania zadania z listy
+//metoda usuwania zadania z listy
 const removeTask = (listIndex, taskId) => {
   const list = taskLists.value[listIndex];
   const taskIndex = list.tasks.findIndex(task => task.id === taskId);
@@ -271,7 +238,7 @@ const removeTask = (listIndex, taskId) => {
   }
 };
 
-// Metoda rozpoczęcia edycji zadania
+//metoda rozpoczęcia edycji zadania
 const startEditingTask = (listIndex, taskId) => {
   const list = taskLists.value[listIndex];
   const task = list.tasks.find(task => task.id === taskId);
@@ -285,7 +252,7 @@ const startEditingTask = (listIndex, taskId) => {
   }
 };
 
-// Metoda zapisywania edytowanego zadania
+//metoda zapisywania edytowanego zadania
 const saveEditedTask = (listIndex, taskId) => {
   const list = taskLists.value[listIndex];
   const task = list.tasks.find(task => task.id === taskId);
@@ -299,87 +266,40 @@ const saveEditedTask = (listIndex, taskId) => {
   }
 };
 
-// Metoda anulowania edycji zadania
+//metoda anulowania edycji zadania
 const cancelEditingTask = () => {
   editingTaskIndex.value = null;
   editedTask.value = { id: '', title: '', description: '', status: '', assignedTo: '' };
 };
 
-// Metoda pokazania okna logowania
+//metoda pokazania okna logowania
 const showLoginModal = () => {
   isModalVisible.value = true;
   isLoginVisible.value = true;
 };
 
-// Metoda pokazania okna rejestracji
+//metoda pokazania okna rejestracji
 const showRegisterModal = () => {
   isModalVisible.value = true;
   isLoginVisible.value = false;
 };
 
-// Metoda zamknięcia okna modalnego
+//metoda zamknięcia okna modalnego
 const closeModal = () => {
   isModalVisible.value = false;
 };
 
-// Metoda wylogowania użytkownika
+//metoda wylogowania użytkownika
 const logout = () => {
   isLoggedIn.value = false;
 };
 
-// Metoda logowania użytkownika
-const login = () => {
-  const user = findUserByEmail(loginData.value.email);
-  if (user && user.password === loginData.value.password) {
-    isLoggedIn.value = true;
-    loggedInUserId.value = user.id;
-    closeModal();
-  } else {
-    console.log('Nieprawidłowe dane logowania');
-  }
-};
-
-// Metoda rejestracji użytkownika
-const register = () => {
-  const existingUser = findUserByEmail(registerData.value.email);
-  if (!existingUser) {
-    const newUser = {
-      id: getNextUserId(),
-      firstName: registerData.value.firstName,
-      lastName: registerData.value.lastName,
-      email: registerData.value.email,
-      password: registerData.value.password,
-      nickname: registerData.value.nickname,
-      taskListIds: [],
-      ifAdmin: 0
-    };
-    users.value.push(newUser);
-    updateServerData();
-    closeModal();
-  } else {
-    console.log('Użytkownik już istnieje');
-  }
-};
-
-// Metoda generująca kolejne unikalne ID użytkownika
-const getNextUserId = () => {
-  const id = userIdCounter.value;
-  userIdCounter.value += 1;
-  updateServerData();
-  return id;
-};
-
-// Metoda znajdująca użytkownika po adresie email
-const findUserByEmail = (email) => {
-  return users.value.find(user => user.email === email);
-};
-
-// Metoda znajdująca użytkownika po ID
+//metoda znajdująca użytkownika po ID
 const findUserById = (id) => {
   return users.value.find(user => user.id === id);
 };
 
-// Metoda znajdująca listę po ID
+//metoda znajdująca listę po ID
 const findListById = (id) => {
   return taskLists.value.find(list => list.id === id);
 };
@@ -479,8 +399,49 @@ const removeTaskListFromUser = async (userId, listId) => {
   }
 };
 
+//obsługiwanie komponentu LoginModal
+const handleLogin = (logData) => {
+  console.log('Zalogowano');
 
-// Metoda inicjalizująca dane po załadowaniu komponentu
+  loggedInUserId.value = logData.loggedInUserId;
+  isLoggedIn.value = true;
+  loginData.value.email = logData.loginData.email;
+  loginData.value.password = logData.loginData.password;
+  closeModal();
+};
+
+const handleClose = () => {
+  closeModal();
+};
+
+const handleRegister = (regData) => {
+  console.log('Zarejestrowano');
+  userIdCounter.value += 1;
+  const newUser = {
+      id: regData.newUser.id,
+      firstName: regData.newUser.firstName,
+      lastName: regData.newUser.lastName,
+      email: regData.newUser.email,
+      password: regData.newUser.password,
+      nickname: regData.newUser.nickname,
+      taskListIds: [],
+      ifAdmin: 0
+    };
+    users.value.push(newUser);
+    updateServerData();
+    closeModal();
+};
+
+//aktualizacja danych na serwerze
+const updateServerData = async () => {
+  try {
+    await axios.post('http://localhost:3001', { taskLists: taskLists.value, users: users.value, userIdCounter: userIdCounter.value, taskIdCounter: taskIdCounter.value, listIdCounter: listIdCounter.value });
+  } catch (error) {
+    console.error('Error updating data on the server', error);
+  }
+};
+
+//inicjalizowanie danych po załadowaniu komponentu
 onMounted(async () => {
   try {
     const response = await axios.get('http://localhost:3001');
