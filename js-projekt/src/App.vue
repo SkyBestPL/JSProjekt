@@ -41,19 +41,29 @@
                     <div style="margin-top: 10px;">
 
                       <span v-if="getCurrentUser().ifAdmin == 1">
-                        <button @click="removeTaskList(index)">Usuń</button>
+                        <button @click="removeTaskList(index)">Usuń listę</button>
                         <br>
-                        <select v-model="selectedListForDelete">
-                          <option v-for="user in users" :value="user.id">{{ user.firstName }} {{ user.lastName }}</option>
-                        </select>
-                        <button @click="assignTaskListToUser(list.id, selectedListForDelete)">Przypisz użytkownika</button>
+                        <span v-if="list.idOwner != null">
+                          <p style="font-size: large;" >Właściciel listy: <b class="owner">{{ findUserById(list.idOwner).nickname }}</b></p>
+                        </span> 
+                        <span v-if="list.idAssigned != null">
+                          <p style="font-size: large;" >Przypisani do listy: 
+                            <span v-for="moderatorId in list.idAssigned" :key="moderatorId">
+                              <b style="color:black">{{ findUserById(moderatorId).nickname }}</b>,
+                            </span>
+                          </p>
+                        </span>
                         <br>
                         <select v-model="selectedOwnerForAssignment">
                           <option v-for="user in users" :value="user.id">{{ user.firstName }} {{ user.lastName }}</option>
                         </select>
                         <button @click="assignOwnerToTaskList(list.id, selectedOwnerForAssignment)">Przypisz właściciela</button>
                         <br>
-
+                        <select v-model="selectedListForDelete">
+                          <option v-for="user in users" :value="user.id">{{ user.firstName }} {{ user.lastName }}</option>
+                        </select>
+                        <button @click="assignTaskListToUser(list.id, selectedListForDelete)">Przypisz użytkownika</button>
+                        <br>
                         <select v-model="selectedUserForDeleteFromList">
                             <option value="">Wybierz użytkownika</option>
                             <option v-for="user in list.idAssigned" :value="user">
@@ -66,7 +76,7 @@
                     
                     <div class="margin-bottom-small">
                       <div v-if="getCurrentUser().id == list.idOwner || getCurrentUser().ifAdmin == 1">
-                        <label>Dodaj nowe zadanie: </label>
+                        <label style="margin-bottom: 10px">Dodaj nowe zadanie: </label>
                         <div class="input-container" style="width: 100%;">
                           <input v-model="newTask.title" placeholder="Tytuł" class="custom-input"/>
                           <textarea v-model="newTask.description" placeholder="Opis" class="custom-input"></textarea>
@@ -211,6 +221,7 @@ const removeTaskList = (index) => {
   updateServerData();
 };
 
+//metoda dodawania listy zadań
 const addTask = (listIndex) => {
   if (newTask.title.trim() !== '') {
     const taskId = taskIdCounter.value;
@@ -289,6 +300,7 @@ const showRegisterModal = () => {
   isLoginVisible.value = false;
 };
 
+//metoda pokazania okna edycji listy
 const showListModal = () => {
   isModalListVisible.value = true;
 };
@@ -298,6 +310,7 @@ const closeModal = () => {
   isModalVisible.value = false;
 };
 
+//metoda zamknięcia okna edycji listy
 const closeListModal = () => {
   isModalListVisible.value = false;
 };
@@ -317,39 +330,40 @@ const findListById = (id) => {
   return taskLists.value.find(list => list.id === id);
 };
 
+//metoda znajdująca zalogowanego użytkownika
 const getCurrentUser = () => {
   return findUserById(loggedInUserId.value);
 };
 
+//metoda ukrywająca szczegóły zadania
 const toggleDetailsVisibility = (task) => {
   task.isDetailsVisible = !task.isDetailsVisible;
   updateServerData();
 };
 
+//metoda ukrywająca okno dodawania zadania
 const toggleAddingVisibility = (list) => {
   list.isAddingVisible = !list.isAddingVisible;
   updateServerData();
 };
 
+//przypisywanie właściciela do listy
 const assignOwnerToTaskList = async (listId, userId) => {
   try {
-
     const Lista = findListById(listId);
-
     Lista.idOwner = userId;
-
     await updateServerData();
   } catch (error) {
     console.error('Error assigning owner to task list', error);
   }
 };
 
+//metoda przypisywania użytkownika do listy
 const assignTaskListToUser = async (listId, userId) => {
   try {
     const user = findUserById(userId);
-
     const Lista = findListById(listId);
-
+    
     if(!Lista.idAssigned.includes(userId)){
       Lista.idAssigned.push(userId);
     } else {
@@ -373,6 +387,7 @@ const assignTaskListToUser = async (listId, userId) => {
   }
 };
 
+//usuwanie użytkownika z listy
 const removeUserFromTaskList = async (userId, listId) => {
   try {
     const list = findListById(listId);
@@ -393,6 +408,7 @@ const removeUserFromTaskList = async (userId, listId) => {
   }
 };
 
+//usuwanie użytkownika z listy
 const removeTaskListFromUser = async (userId, listId) => {
   try {
     const user = findUserById(userId);
